@@ -1,8 +1,9 @@
+// Package main -
 package main
 
-import "fmt"
-
 func main() {
-	fmt.Println("vim-go")
-
+	// TODO
+	// Create the concrete instances required to run the app
+	// TODO
+	// Start the app
 }
