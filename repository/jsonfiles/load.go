@@ -64,3 +64,84 @@ type User struct {
 	Suspended      bool     `json:"suspended"`
 	Role           string   `json:"role"`
 }
+
+func fileExists(filepath string) error {
+	// check file exists, and we have perms
+	if _, err := os.Stat(filepath); err == nil {
+		return nil
+	} else if os.IsNotExist(err) {
+		return fmt.Errorf("%s does not exist", filepath)
+	} else {
+		// Some other error, eg. permissons
+		return fmt.Errorf("%s caused error %w", filepath, err)
+	}
+}
+
+func loadData(filepath string) ([]byte, error) {
+	if err := fileExists(filepath); err != nil {
+		return nil, fmt.Errorf("unable to load file with error %w", err)
+	}
+
+	data, err := ioutil.ReadFile(filepath)
+	if err != nil {
+		return nil, fmt.Errorf("readfile error %w", err)
+	}
+	return data, nil
+}
+
+// LoadTicketData -
+func LoadTicketData(filename, path string) error {
+	// OS independent path
+	p := filepath.FromSlash(filepath.Join(path, filename))
+	data, err := loadData(p)
+	if err != nil {
+		return fmt.Errorf("loadTicketData loaddata error %w", err)
+	}
+
+	var ticket []Ticket
+
+	err = json.Unmarshal(data, &ticket)
+	if err != nil {
+		return fmt.Errorf("loadTicketData unmarshal error %w", err)
+	}
+
+	return nil
+}
+
+// LoadOrgData -
+func LoadOrgData(filename, path string) error {
+	// OS independent path
+	p := filepath.FromSlash(filepath.Join(path, filename))
+	data, err := loadData(p)
+	if err != nil {
+		return fmt.Errorf("loadOrgData loaddata error %w", err)
+	}
+
+	var org []Organization
+
+	err = json.Unmarshal(data, &org)
+	if err != nil {
+		return fmt.Errorf("loadOrgData unmarshal error %w", err)
+	}
+
+	return nil
+}
+
+// LoadUserData -
+func LoadUserData(filename, path string) error {
+	// OS independent path
+	p := filepath.FromSlash(filepath.Join(path, filename))
+	data, err := loadData(p)
+	if err != nil {
+		return fmt.Errorf("loadUserData loaddata error %w", err)
+	}
+
+	var user []User
+
+	err = json.Unmarshal(data, &user)
+	if err != nil {
+		return fmt.Errorf("loadUserData unmarshal error %w", err)
+	}
+
+	return nil
+}
