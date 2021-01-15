@@ -1,3 +1,6 @@
 package search
 
-type UI interface{}
+type UI interface {
+	GetCommand() (map[string]string, error)
+	ShowResults([]string) error
+}
