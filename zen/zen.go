@@ -52,12 +52,16 @@ func (z *zen) Run() {
 			z.ui.Exit()
 		case "2":
 			// Get available search terms
-			terms, err := z.datastore.GetTerms()
+			terms, err := z.datastore.GetTerms(cmds["group"])
 			if err != nil {
 				z.ui.ShowResults([]string{"Cannot retrieve terms"})
 				break
 			}
-			z.ui.ShowResults(terms)
+			termVals := []string{}
+			for k, v := range terms {
+				termVals = append(termVals, fmt.Sprintf("%s, \t%s", k, v))
+			}
+			z.ui.ShowResults(termVals)
 		case "1":
 			// Get lines from the specified group that contain the specified
 			// search term
@@ -66,12 +70,24 @@ func (z *zen) Run() {
 				z.ui.ShowResults([]string{fmt.Sprintf("Cannot retrieve %s", cmds["group"])})
 				break
 			}
-			d, err := z.searcher.Contains(cmds["term"], group)
+			// Get the terms
+			// terms, err := z.datastore.GetTerms(cmds["group"])
+			// if err != nil {
+			// z.ui.ShowResults([]string{"Cannot retrieve terms"})
+			// break
+			// }
+
+			d, err := z.searcher.Contains(cmds["value"], cmds["term"], group)
 			if err != nil {
 				z.ui.ShowResults([]string{fmt.Sprintf("Cannot complete search of %s for %s", cmds["term"], group)})
 				break
 			}
-			z.ui.ShowResults(d)
+			dVals := []string{}
+			for k, v := range d {
+				dVals = append(dVals, fmt.Sprintf("%s, \t%s", k, v))
+
+			}
+			z.ui.ShowResults(dVals)
 		}
 	}
 }
