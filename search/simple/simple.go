@@ -3,6 +3,7 @@ package simple
 
 import (
 	"fmt"
+	"math"
 	"reflect"
 	"strconv"
 	"strings"
@@ -10,6 +11,26 @@ import (
 
 // Simple -
 type Simple struct{}
+
+const epsilon = 1e-9
+
+func nearlyEqualFloats(a, b float64) bool {
+	absA := math.Abs(a)
+	absB := math.Abs(b)
+	diff := math.Abs(a - b)
+
+	if a == b { // shortcut, handles infinities
+		return true
+	} else if a == 0 || b == 0 || (absA+absB < math.SmallestNonzeroFloat64) {
+		// a or b is zero or both are extremely close to it relative error is
+		// less meaningful here
+		return diff < (epsilon * math.SmallestNonzeroFloat64)
+
+	} else { // use relative error
+		return diff/math.Min((absA+absB), math.MaxFloat64) < epsilon
+	}
+
+}
 
 // Contains -
 func (s Simple) Contains(search, field string, data []map[string]interface{}) (map[string]interface{}, error) {
@@ -24,7 +45,7 @@ func (s Simple) Contains(search, field string, data []map[string]interface{}) (m
 		case "f", "false":
 			bSearch = false
 		default:
-			return nil, fmt.Errorf("cannot convert %s to bool", search)
+			return nil, fmt.Errorf("cannot use %s for comparison to boolean field", search)
 		}
 		for i := range data {
 			// Will only return the first one
@@ -38,10 +59,20 @@ func (s Simple) Contains(search, field string, data []map[string]interface{}) (m
 				return data[i], nil
 			}
 		}
+	case float32, float64:
+		f64, err := strconv.ParseFloat(search, 64)
+		if err != nil {
+			return nil, fmt.Errorf("cannot convert %s with error %v", search, err)
+		}
+		for j := range data {
+			if nearlyEqualFloats(data[j][field].(float64), f64) {
+				return data[j], nil
+			}
+		}
 	case int:
 		i, err := strconv.Atoi(search)
 		if err != nil {
-			return nil, fmt.Errorf("cannont convert %s with error %v", search, err)
+			return nil, fmt.Errorf("cannot convert %s with error %v", search, err)
 		}
 		for j := range data {
 			if data[j][field].(int) == i {
