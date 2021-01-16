@@ -89,7 +89,7 @@ func NewDatastore(filepaths map[string]string) (*datastore, error) {
 		return nil, fmt.Errorf("no 'Tickets' filepath specified")
 	}
 
-	return &datastore{filepaths: filepaths, data: map[string][]map[string]interface{}{}}, nil
+	return &datastore{filepaths: filepaths, data: map[string][]map[string]interface{}{}, terms: map[string]map[string]reflect.Type{}}, nil
 }
 
 // GetGroup - Get all of the items for this group.
@@ -150,7 +150,11 @@ func (ds datastore) loadFileData(file string) ([]map[string]interface{}, error) 
 		return nil, fmt.Errorf("%s unmarshal error %w", file, err)
 	}
 
-	return tempData.([]map[string]interface{}), nil
+	m := []map[string]interface{}{}
+	for i := range tempData.([]interface{}) {
+		m = append(m, (tempData.([]interface{}))[i].(map[string]interface{}))
+	}
+	return m, nil
 }
 
 func (ds datastore) loadTerms(data map[string]interface{}) (map[string]reflect.Type, error) {
