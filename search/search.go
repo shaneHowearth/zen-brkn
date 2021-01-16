@@ -3,5 +3,5 @@ package search
 
 // Search -
 type Search interface {
-	Contains(substr string, data []string) ([]string, error)
+	Contains(substr, field string, data []map[string]interface{}) (map[string]interface{}, error)
 }
