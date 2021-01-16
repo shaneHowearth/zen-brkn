@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"text/tabwriter"
 )
 
 // Simple -
@@ -110,8 +111,11 @@ func (s Simple) GetCommand() (map[string]string, error) {
 
 // ShowResults - Print out results
 func (s Simple) ShowResults(output []string) error {
+	// Align columns to the left
+	w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', 0)
 	for i := range output {
-		fmt.Println(output[i])
+		fmt.Fprintln(w, output[i])
 	}
+	w.Flush()
 	return nil
 }
