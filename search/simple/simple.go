@@ -62,7 +62,7 @@ func (s Simple) Contains(search, field string, data []map[string]interface{}) (m
 	case float32, float64:
 		f64, err := strconv.ParseFloat(search, 64)
 		if err != nil {
-			return nil, fmt.Errorf("cannot convert %s with error %v", search, err)
+			return nil, fmt.Errorf("cannot use %s for comparison to float field", search)
 		}
 		for j := range data {
 			if nearlyEqualFloats(data[j][field].(float64), f64) {
@@ -72,7 +72,7 @@ func (s Simple) Contains(search, field string, data []map[string]interface{}) (m
 	case int:
 		i, err := strconv.Atoi(search)
 		if err != nil {
-			return nil, fmt.Errorf("cannot convert %s with error %v", search, err)
+			return nil, fmt.Errorf("cannot use %s for comparison to int field", search)
 		}
 		for j := range data {
 			if data[j][field].(int) == i {
