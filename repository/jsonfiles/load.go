@@ -123,6 +123,7 @@ func (ds datastore) fileExists(filepath string) error {
 
 }
 
+// Read file contents into memory
 func (ds datastore) loadFile(filepath string) ([]byte, error) {
 	if err := ds.fileExists(filepath); err != nil {
 		return nil, fmt.Errorf("unable to load file with error %w", err)
@@ -166,7 +167,7 @@ func (ds datastore) loadTerms(data map[string]interface{}) (map[string]reflect.T
 
 }
 
-// LoadData - Load all the data from the files into RAM
+// LoadData - Load all the data from the files into maps
 func (ds datastore) LoadData() (err error) {
 	ds.data["Tickets"], err = ds.loadFileData(ds.filepaths["Tickets"])
 	if err != nil {
