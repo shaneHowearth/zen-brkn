@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"reflect"
+	"strings"
 )
 
 // Organization -
@@ -65,7 +67,50 @@ type User struct {
 	Role           string   `json:"role"`
 }
 
-func fileExists(filepath string) error {
+// datastore -
+type datastore struct {
+	filepaths map[string]string
+	data      map[string][]map[string]interface{}
+	terms     map[string]map[string]reflect.Type
+}
+
+// NewDatastore - New instance of a datastore, with checks to ensure required
+// filepaths are specified.
+// Allow return of unexported type:
+// nolint: golint
+func NewDatastore(filepaths map[string]string) (*datastore, error) {
+	if _, ok := filepaths["Organizations"]; !ok {
+		return nil, fmt.Errorf("no 'Organizations' filepath specified")
+	}
+	if _, ok := filepaths["Users"]; !ok {
+		return nil, fmt.Errorf("no 'Users' filepath specified")
+	}
+	if _, ok := filepaths["Tickets"]; !ok {
+		return nil, fmt.Errorf("no 'Tickets' filepath specified")
+	}
+
+	return &datastore{filepaths: filepaths, data: map[string][]map[string]interface{}{}}, nil
+}
+
+// GetGroup - Get all of the items for this group.
+func (ds datastore) GetGroup(group string) ([]map[string]interface{}, error) {
+	g := strings.Title(strings.ToLower(group))
+	if _, ok := ds.data[g]; ok {
+		return ds.data[g], nil
+	}
+	return nil, fmt.Errorf("%s does not exist", group)
+}
+
+// GetTerms - get all of the terms that can be used to search this group.
+func (ds datastore) GetTerms(group string) (map[string]reflect.Type, error) {
+	g := strings.Title(strings.ToLower(group))
+	if _, ok := ds.terms[g]; ok {
+		return ds.terms[g], nil
+	}
+	return nil, fmt.Errorf("%s does not exist", group)
+}
+
+func (ds datastore) fileExists(filepath string) error {
 	// check file exists, and we have perms
 	if _, err := os.Stat(filepath); err == nil {
 		return nil
@@ -75,10 +120,11 @@ func fileExists(filepath string) error {
 		// Some other error, eg. permissons
 		return fmt.Errorf("%s caused error %w", filepath, err)
 	}
+
 }
 
-func loadData(filepath string) ([]byte, error) {
-	if err := fileExists(filepath); err != nil {
+func (ds datastore) loadFile(filepath string) ([]byte, error) {
+	if err := ds.fileExists(filepath); err != nil {
 		return nil, fmt.Errorf("unable to load file with error %w", err)
 	}
 
@@ -89,59 +135,58 @@ func loadData(filepath string) ([]byte, error) {
 	return data, nil
 }
 
-// LoadTicketData -
-func LoadTicketData(filename, path string) error {
+func (ds datastore) loadFileData(file string) ([]map[string]interface{}, error) {
 	// OS independent path
-	p := filepath.FromSlash(filepath.Join(path, filename))
-	data, err := loadData(p)
+	p := filepath.FromSlash(file)
+	data, err := ds.loadFile(p)
 	if err != nil {
-		return fmt.Errorf("loadTicketData loaddata error %w", err)
+		return nil, fmt.Errorf("%s loaddata error %w", file, err)
 	}
 
-	var ticket []Ticket
+	var tempData interface{}
 
-	err = json.Unmarshal(data, &ticket)
+	err = json.Unmarshal(data, &tempData)
 	if err != nil {
-		return fmt.Errorf("loadTicketData unmarshal error %w", err)
+		return nil, fmt.Errorf("%s unmarshal error %w", file, err)
 	}
 
-	return nil
+	return tempData.([]map[string]interface{}), nil
 }
 
-// LoadOrgData -
-func LoadOrgData(filename, path string) error {
-	// OS independent path
-	p := filepath.FromSlash(filepath.Join(path, filename))
-	data, err := loadData(p)
-	if err != nil {
-		return fmt.Errorf("loadOrgData loaddata error %w", err)
+func (ds datastore) loadTerms(data map[string]interface{}) (map[string]reflect.Type, error) {
+	keys := map[string]reflect.Type{}
+	for k := range data {
+		keys[k] = reflect.TypeOf(data[k])
 	}
+	return keys, nil
 
-	var org []Organization
-
-	err = json.Unmarshal(data, &org)
-	if err != nil {
-		return fmt.Errorf("loadOrgData unmarshal error %w", err)
-	}
-
-	return nil
 }
 
-// LoadUserData -
-func LoadUserData(filename, path string) error {
-	// OS independent path
-	p := filepath.FromSlash(filepath.Join(path, filename))
-	data, err := loadData(p)
+// LoadData - Load all the data from the files into RAM
+func (ds datastore) LoadData() (err error) {
+	ds.data["Tickets"], err = ds.loadFileData(ds.filepaths["Tickets"])
 	if err != nil {
-		return fmt.Errorf("loadUserData loaddata error %w", err)
+		return err
+	}
+	ds.terms["Tickets"], err = ds.loadTerms(ds.data["Tickets"][0])
+	if err != nil {
+		return err
 	}
 
-	var user []User
-
-	err = json.Unmarshal(data, &user)
+	ds.data["Users"], err = ds.loadFileData(ds.filepaths["Users"])
 	if err != nil {
-		return fmt.Errorf("loadUserData unmarshal error %w", err)
+		return err
+	}
+	ds.terms["Users"], err = ds.loadTerms(ds.data["Users"][0])
+	if err != nil {
+		return err
 	}
 
-	return nil
+	ds.data["Organizations"], err = ds.loadFileData(ds.filepaths["Organizations"])
+	if err != nil {
+		return err
+	}
+	ds.terms["Organizations"], err = ds.loadTerms(ds.data["Organizations"][0])
+
+	return err
 }
