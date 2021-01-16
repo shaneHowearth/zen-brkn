@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"sort"
 
 	storage "github.com/shanehowearth/zen/repository"
 	"github.com/shanehowearth/zen/search"
@@ -87,14 +88,14 @@ func (z *zen) Run() {
 
 			d, err := z.searcher.Contains(cmds["value"], cmds["term"], group)
 			if err != nil {
-				z.ui.ShowResults([]string{fmt.Sprintf("Cannot complete search of %s for %s", cmds["term"], group)})
+				z.ui.ShowResults([]string{fmt.Sprintf("Search %s of %s returned error %#v", cmds["term"], cmds["group"], err)})
 				break
 			}
 			dVals := []string{}
 			for k, v := range d {
-				dVals = append(dVals, fmt.Sprintf("%s, \t%s", k, v))
-
+				dVals = append(dVals, fmt.Sprintf("%s, \t%v", k, v))
 			}
+			sort.Strings(dVals)
 			z.ui.ShowResults(dVals)
 		}
 	}
