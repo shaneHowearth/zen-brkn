@@ -6,7 +6,7 @@ import (
 
 	"github.com/shanehowearth/zen/repository/jsonfiles"
 	simpleSearch "github.com/shanehowearth/zen/search/simple"
-	simpleUI "github.com/shanehowearth/zen/ui/simple"
+	"github.com/shanehowearth/zen/ui/barebones"
 	zensearch "github.com/shanehowearth/zen/zen"
 )
 
@@ -25,7 +25,7 @@ func main() {
 	}
 
 	// UI
-	ui := simpleUI.Simple{}
+	ui := barebones.Bb{}
 
 	// Search
 	s := simpleSearch.Simple{}

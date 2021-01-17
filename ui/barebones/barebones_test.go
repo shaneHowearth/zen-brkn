@@ -1,4 +1,4 @@
-package simple_test
+package barebones_test
 
 import (
 	"bytes"
@@ -8,12 +8,12 @@ import (
 	"os"
 	"testing"
 
-	"github.com/shanehowearth/zen/ui/simple"
+	"github.com/shanehowearth/zen/ui/barebones"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestShowHelp(t *testing.T) {
-	s := simple.Simple{}
+	s := barebones.Bb{}
 	// Back up os.Stdout, so we can restore it later
 	orig := os.Stdout
 	r, w, _ := os.Pipe()
@@ -43,7 +43,7 @@ Type 'quit' to exit at any time, Press 'Enter' to continue
 }
 
 func TestGetCommand(t *testing.T) {
-	s := simple.Simple{}
+	s := barebones.Bb{}
 	testcases := map[string]struct {
 		output map[string]string
 		oErr   error
@@ -56,11 +56,11 @@ func TestGetCommand(t *testing.T) {
 		},
 		"Search error": {
 			input: []string{"meaningless\n"},
-			rErr:  fmt.Errorf("unable to get user search option with error invalid argument"),
+			rErr:  fmt.Errorf("unable to get user search option with error EOF"),
 		},
 		// "Searchable fields": {
-		// input: []string{"2\n", "1\n"},
-		// output: map[string]string{},
+		// input: []string{"2\n"},
+		// output: map[string]string(nil)
 		// },
 	}
 
@@ -73,7 +73,9 @@ func TestGetCommand(t *testing.T) {
 			}
 			orig := os.Stdin
 			// Restore stdin right after the test.
-			defer func() { os.Stdin = orig }()
+			defer func() {
+				os.Stdin = orig
+			}()
 			os.Stdin = r
 
 			input := []byte(tc.input[0])
@@ -86,26 +88,24 @@ func TestGetCommand(t *testing.T) {
 			if tc.rErr != nil {
 				r = nil
 			}
-			if len(tc.input) > 1 {
-				r, w, err = os.Pipe()
-				if err != nil {
-					t.Fatal(err)
-				}
-				input = []byte(tc.input[1])
-				_, err = w.Write(input)
-				if err != nil {
-					t.Error(err)
-				}
-				w.Close()
-			}
+			// if len(tc.input) > 1 {
+			// r, w, err = os.Pipe()
+			// if err != nil {
+			// t.Fatal(err)
+			// }
+			// input = []byte(tc.input[1])
+			// _, err = w.Write(input)
+			// if err != nil {
+			// t.Error(err)
+			// }
+			// w.Close()
+			// }
 
 			output, err := s.GetCommand()
 
 			if tc.rErr != nil {
-				// assert.(t, err, "Got an unexpected error %v", err)
 				assert.Errorf(t, tc.rErr, err.Error(), "Error isn't what was expected")
 			} else {
-
 				assert.Nilf(t, err, "Got an unexpected error %v", err)
 			}
 			assert.Equal(t, tc.output, output, "Output did not match")
@@ -114,7 +114,7 @@ func TestGetCommand(t *testing.T) {
 }
 
 func TestShowResults(t *testing.T) {
-	s := simple.Simple{}
+	s := barebones.Bb{}
 	testcases := map[string]struct {
 		input  []string
 		output string

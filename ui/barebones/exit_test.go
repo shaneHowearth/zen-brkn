@@ -1,4 +1,4 @@
-package simple
+package barebones
 
 import (
 	"fmt"
@@ -9,8 +9,8 @@ import (
 )
 
 func TestExit(t *testing.T) {
-	s := Simple{}
+	b := Bb{}
 	osExit = func(i int) { panic(fmt.Sprintf("Called with %d", i)) }
 	defer func() { osExit = os.Exit }()
-	assert.PanicsWithValue(t, "Called with 0", s.Exit, "os.Exit was not called")
+	assert.PanicsWithValue(t, "Called with 0", b.Exit, "os.Exit was not called")
 }

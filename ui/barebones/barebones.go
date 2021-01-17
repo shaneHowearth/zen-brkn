@@ -1,5 +1,5 @@
-// Package simple -
-package simple
+// Package barebones -
+package barebones
 
 import (
 	"bufio"
@@ -9,11 +9,11 @@ import (
 	"text/tabwriter"
 )
 
-// Simple -
-type Simple struct{}
+// Bb -
+type Bb struct{}
 
 // ShowHelp -
-func (s Simple) ShowHelp() {
+func (b Bb) ShowHelp() {
 	fmt.Print(`Welcome to Zendesk Search
 Type 'quit' to exit at any time, Press 'Enter' to continue
 
@@ -31,7 +31,7 @@ Type 'quit' to exit at any time, Press 'Enter' to continue
 var osExit = os.Exit
 
 // Exit -
-func (s Simple) Exit() {
+func (b Bb) Exit() {
 	osExit(0)
 }
 
@@ -48,8 +48,8 @@ func setGroup(group string) string {
 }
 
 // GetCommand - Read command(s) from terminal
-func (s Simple) GetCommand() (map[string]string, error) {
-	s.ShowHelp()
+func (b Bb) GetCommand() (map[string]string, error) {
+	b.ShowHelp()
 
 	m := map[string]string{}
 
@@ -106,7 +106,7 @@ func (s Simple) GetCommand() (map[string]string, error) {
 }
 
 // ShowResults - Print out results
-func (s Simple) ShowResults(input []string) error {
+func (b Bb) ShowResults(input []string) error {
 	// Align columns to the left
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', 0)
 	for i := range input {
