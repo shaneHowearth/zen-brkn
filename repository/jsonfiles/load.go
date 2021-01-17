@@ -11,62 +11,6 @@ import (
 	"strings"
 )
 
-// Organization -
-type Organization struct {
-	ID            int      `json:"_id"`
-	URL           string   `json:"url"`
-	ExternalID    string   `json:"external_id"`
-	Name          string   `json:"name"`
-	DomainNames   []string `json:"domain_names"`
-	CreatedAt     string   `json:"created_at"`
-	Details       string   `json:"details"`
-	SharedTickets bool     `json:"shared_tickets"`
-	Tags          []string `json:"tags"`
-}
-
-// Ticket -
-type Ticket struct {
-	ID             string   `json:"_id"`
-	URL            string   `json:"url"`
-	ExternalID     string   `json:"external_id"`
-	CreatedAt      string   `json:"created_at"`
-	Type           string   `json:"type"`
-	Subject        string   `json:"subject"`
-	Description    string   `json:"description"`
-	Priority       string   `json:"priority"`
-	Status         string   `json:"status"`
-	SubmitterID    int      `json:"submitter_id"`
-	AssigneeID     int      `json:"assignee_id"`
-	OrganizationID int      `json:"organization_id"`
-	Tags           []string `json:"tags"`
-	HasIncidents   bool     `json:"has_incidents"`
-	DueAt          string   `json:"due_at"`
-	Via            string   `json:"via"`
-}
-
-// User -
-type User struct {
-	ID             int      `json:"_id"`
-	URL            string   `json:"url"`
-	ExternalID     string   `json:"external_id"`
-	Name           string   `json:"name"`
-	Alias          string   `json:"alias"`
-	CreatedAt      string   `json:"created_at"`
-	Active         bool     `json:"active"`
-	Verified       bool     `json:"verified"`
-	Shared         bool     `json:"shared"`
-	Locale         string   `json:"locale"`
-	Timezone       string   `json:"timezone"`
-	LastLoginAt    string   `json:"last_login_at"`
-	Email          string   `json:"email"`
-	Phone          string   `json:"phone"`
-	Signature      string   `json:"signature"`
-	OrganizationID int      `json:"organization_id"`
-	Tags           []string `json:"tags"`
-	Suspended      bool     `json:"suspended"`
-	Role           string   `json:"role"`
-}
-
 // datastore -
 type datastore struct {
 	filepaths map[string]string
@@ -89,7 +33,11 @@ func NewDatastore(filepaths map[string]string) (*datastore, error) {
 		return nil, fmt.Errorf("no 'Tickets' filepath specified")
 	}
 
-	return &datastore{filepaths: filepaths, data: map[string][]map[string]interface{}{}, terms: map[string]map[string]reflect.Type{}}, nil
+	return &datastore{
+		filepaths: filepaths,
+		data:      map[string][]map[string]interface{}{},
+		terms:     map[string]map[string]reflect.Type{},
+	}, nil
 }
 
 // GetGroup - Get all of the items for this group.
@@ -110,8 +58,8 @@ func (ds datastore) GetTerms(group string) (map[string]reflect.Type, error) {
 	return nil, fmt.Errorf("%s does not exist", group)
 }
 
+// Check file exists, and we have permissons to access it.
 func (ds datastore) fileExists(filepath string) error {
-	// check file exists, and we have perms
 	if _, err := os.Stat(filepath); err == nil {
 		return nil
 	} else if os.IsNotExist(err) {
@@ -123,7 +71,7 @@ func (ds datastore) fileExists(filepath string) error {
 
 }
 
-// Read file contents into memory
+// Read file contents into memory.
 func (ds datastore) loadFile(filepath string) ([]byte, error) {
 	if err := ds.fileExists(filepath); err != nil {
 		return nil, fmt.Errorf("unable to load file with error %w", err)
@@ -167,7 +115,7 @@ func (ds datastore) loadTerms(data map[string]interface{}) (map[string]reflect.T
 
 }
 
-// LoadData - Load all the data from the files into maps
+// LoadData - Load all the data from the files into maps.
 func (ds datastore) LoadData() (err error) {
 	ds.data["Tickets"], err = ds.loadFileData(ds.filepaths["Tickets"])
 	if err != nil {
