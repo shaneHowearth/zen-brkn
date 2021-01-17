@@ -28,7 +28,7 @@ func main() {
 	ui := barebones.Bb{}
 
 	// Search
-	s := simpleSearch.Simple{}
+	s := simpleSearch.Searcher{}
 
 	// Tie them all together and start the application
 	z, err := zensearch.NewZen(ds, ui, s)

@@ -9,8 +9,8 @@ import (
 	"strings"
 )
 
-// Simple -
-type Simple struct{}
+// Searcher -
+type Searcher struct{}
 
 const epsilon = 1e-9
 
@@ -33,7 +33,7 @@ func nearlyEqualFloats(a, b float64) bool {
 }
 
 // Contains -
-func (s Simple) Contains(search, field string, data []map[string]interface{}) (map[string]interface{}, error) {
+func (s Searcher) Contains(search, field string, data []map[string]interface{}) (map[string]interface{}, error) {
 	results := map[string]interface{}{}
 	search = strings.TrimSpace(search)
 	switch data[0][field].(type) {
