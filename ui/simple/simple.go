@@ -27,9 +27,12 @@ Type 'quit' to exit at any time, Press 'Enter' to continue
 `)
 }
 
+// Allow os.Exit to be faked in tests
+var osExit = os.Exit
+
 // Exit -
 func (s Simple) Exit() {
-	os.Exit(0)
+	osExit(0)
 }
 
 func setGroup(group string) string {
@@ -54,7 +57,7 @@ func (s Simple) GetCommand() (map[string]string, error) {
 	reader := bufio.NewReader(os.Stdin)
 	cmdString, err := reader.ReadString('\n')
 	if err != nil {
-		return nil, fmt.Errorf("unable to get search option with error %w", err)
+		return nil, fmt.Errorf("unable to get user search option with error %w", err)
 	}
 	m["command"] = strings.TrimSpace(cmdString)
 	// Quit option
@@ -64,20 +67,10 @@ func (s Simple) GetCommand() (map[string]string, error) {
 	// List search terms
 	// TODO - ensure that only one rune exists here, what happens if the user
 	// hits "12"
+	searchTerms := false
 	if strings.Contains(cmdString, "2") {
-		fmt.Println("Select 1) Users or 2) Tickets or 3) Organizations")
-		cmdString, err = reader.ReadString('\n')
-		if err != nil {
-			return nil, fmt.Errorf("unable to get search group with error %w", err)
-		}
-		if strings.Contains(cmdString, "q") {
-			m["command"] = strings.TrimSpace(cmdString)
-			return m, nil
-		}
-		m["group"] = setGroup(strings.TrimSpace(cmdString))
-		return m, nil
+		searchTerms = true
 	}
-
 	// Search group
 	fmt.Println("Select 1) Users or 2) Tickets or 3) Organizations")
 	cmdString, err = reader.ReadString('\n')
@@ -89,6 +82,9 @@ func (s Simple) GetCommand() (map[string]string, error) {
 		return m, nil
 	}
 	m["group"] = setGroup(strings.TrimSpace(cmdString))
+	if searchTerms {
+		return m, nil
+	}
 
 	// Search Term
 	fmt.Println("Enter search term")
