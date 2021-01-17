@@ -16,6 +16,7 @@ type datastore struct {
 	filepaths map[string]string
 	data      map[string][]map[string]interface{}
 	terms     map[string]map[string]reflect.Type
+	groups    []string
 }
 
 // NewDatastore - New instance of a datastore, with checks to ensure required
@@ -23,21 +24,34 @@ type datastore struct {
 // Allow return of unexported type:
 // nolint: golint
 func NewDatastore(filepaths map[string]string) (*datastore, error) {
-	if _, ok := filepaths["Organizations"]; !ok {
-		return nil, fmt.Errorf("no 'Organizations' filepath specified")
-	}
-	if _, ok := filepaths["Users"]; !ok {
-		return nil, fmt.Errorf("no 'Users' filepath specified")
-	}
-	if _, ok := filepaths["Tickets"]; !ok {
-		return nil, fmt.Errorf("no 'Tickets' filepath specified")
-	}
-
-	return &datastore{
+	data := map[string][]map[string]interface{}{}
+	terms := map[string]map[string]reflect.Type{}
+	groups := []string{}
+	ds := datastore{
 		filepaths: filepaths,
-		data:      map[string][]map[string]interface{}{},
-		terms:     map[string]map[string]reflect.Type{},
-	}, nil
+		data:      data,
+		terms:     terms,
+		groups:    groups,
+	}
+	var err error
+	for k := range filepaths {
+		ds.groups = append(ds.groups, k)
+		ds.data[k], err = ds.loadFileData(ds.filepaths[k])
+		if err != nil {
+			return nil, err
+		}
+		ds.terms[k], err = ds.loadTerms(ds.data[k][0])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return &ds, nil
+
+}
+
+// GetGroupNames - Get all the names of groups that this datastore knows about.
+func (ds datastore) GetGroupNames() []string {
+	return ds.groups
 }
 
 // GetGroup - Get all of the items for this group.
@@ -115,6 +129,7 @@ func (ds datastore) loadTerms(data map[string]interface{}) (map[string]reflect.T
 
 }
 
+/*
 // LoadData - Load all the data from the files into maps.
 func (ds datastore) LoadData() (err error) {
 	ds.data["Tickets"], err = ds.loadFileData(ds.filepaths["Tickets"])
@@ -143,3 +158,4 @@ func (ds datastore) LoadData() (err error) {
 
 	return err
 }
+*/

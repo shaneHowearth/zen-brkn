@@ -50,11 +50,6 @@ func NewZen(d storage.Store, u userinterface.UI, s search.Search) (*zen, error) 
 
 // Run -
 func (z *zen) Run() {
-	if err := z.datastore.LoadData(); err != nil {
-		log.Printf("unable to load data with error %v", err)
-		z.ui.Exit()
-	}
-
 	// Main loop
 	for {
 		cmds, err := z.ui.GetCommand()
