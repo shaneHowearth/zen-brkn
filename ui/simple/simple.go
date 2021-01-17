@@ -106,11 +106,11 @@ func (s Simple) GetCommand() (map[string]string, error) {
 }
 
 // ShowResults - Print out results
-func (s Simple) ShowResults(output []string) error {
+func (s Simple) ShowResults(input []string) error {
 	// Align columns to the left
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', 0)
-	for i := range output {
-		fmt.Fprintln(w, output[i])
+	for i := range input {
+		fmt.Fprintln(w, input[i])
 	}
 	w.Flush()
 	return nil
