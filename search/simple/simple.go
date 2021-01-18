@@ -35,6 +35,10 @@ func nearlyEqualFloats(a, b float64) bool {
 // Contains -
 func (s Searcher) Contains(search, field string, data []map[string]interface{}) (map[string]interface{}, error) {
 	results := map[string]interface{}{}
+	// If the field specified doesn't exist, bail
+	if _, ok := data[0][field]; !ok {
+		return nil, fmt.Errorf("field %q does not exist", field)
+	}
 	search = strings.TrimSpace(search)
 	switch data[0][field].(type) {
 	case bool:
@@ -45,7 +49,7 @@ func (s Searcher) Contains(search, field string, data []map[string]interface{}) 
 		case "f", "false":
 			bSearch = false
 		default:
-			return nil, fmt.Errorf("cannot use %s for comparison to boolean field", search)
+			return nil, fmt.Errorf("cannot use %q for comparison to boolean field", search)
 		}
 		for i := range data {
 			// Will only return the first one
@@ -62,17 +66,17 @@ func (s Searcher) Contains(search, field string, data []map[string]interface{}) 
 	case float32, float64:
 		f64, err := strconv.ParseFloat(search, 64)
 		if err != nil {
-			return nil, fmt.Errorf("cannot use %s for comparison to float field", search)
+			return nil, fmt.Errorf("cannot use %q for comparison to float field", search)
 		}
 		for j := range data {
 			if nearlyEqualFloats(data[j][field].(float64), f64) {
 				return data[j], nil
 			}
 		}
-	case int:
+	case int, int32, int64:
 		i, err := strconv.Atoi(search)
 		if err != nil {
-			return nil, fmt.Errorf("cannot use %s for comparison to int field", search)
+			return nil, fmt.Errorf("cannot use %q for comparison to int field", search)
 		}
 		for j := range data {
 			if data[j][field].(int) == i {
@@ -88,7 +92,7 @@ func (s Searcher) Contains(search, field string, data []map[string]interface{}) 
 			}
 		}
 	default:
-		return nil, fmt.Errorf("unknown type %s", reflect.TypeOf(data[0][field]))
+		return nil, fmt.Errorf("unknown type %q", reflect.TypeOf(data[0][field]))
 	}
 	// Nothing found
 	return results, nil

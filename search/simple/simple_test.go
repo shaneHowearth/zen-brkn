@@ -18,7 +18,15 @@ func TestContains(t *testing.T) {
 		output map[string]interface{}
 		err    error
 	}{
-		"False Boolean": {search: "f", field: "boolean",
+		"No such field": {
+
+			search: "f", field: "doesn'tExist",
+			data: []map[string]interface{}{{"boolean": false}, {"boolean": true}},
+			// output: map[string]interface{}{"boolean": false},
+			err: fmt.Errorf("field %q does not exist", "doesn'tExist"),
+		},
+		"False Boolean": {
+			search: "f", field: "boolean",
 			data:   []map[string]interface{}{{"boolean": false}, {"boolean": true}},
 			output: map[string]interface{}{"boolean": false},
 		},
@@ -31,7 +39,7 @@ func TestContains(t *testing.T) {
 			search: "badInput", field: "boolean",
 			data:   []map[string]interface{}{{"boolean": false}, {"boolean": true}},
 			output: nil,
-			err:    fmt.Errorf("cannot use %s for comparison to boolean field", "badInput"),
+			err:    fmt.Errorf("cannot use %q for comparison to boolean field", "badInput"),
 		},
 		"No Boolean Match": {
 			search: "false", field: "boolean",
@@ -62,7 +70,7 @@ func TestContains(t *testing.T) {
 			search: "11a", field: "int",
 			data:   []map[string]interface{}{{"int": 100}, {"int": 105}},
 			output: nil,
-			err:    fmt.Errorf("cannot use %s for comparison to int field", "11a"),
+			err:    fmt.Errorf("cannot use %q for comparison to int field", "11a"),
 		},
 		"Slice of String": {
 			search: "exists", field: "[]string",
@@ -88,7 +96,7 @@ func TestContains(t *testing.T) {
 			search: "11a", field: "float32",
 			data:   []map[string]interface{}{{"float32": 100.2}, {"float32": 105.1}},
 			output: nil,
-			err:    fmt.Errorf("cannot use %s for comparison to float field", "11a"),
+			err:    fmt.Errorf("cannot use %q for comparison to float field", "11a"),
 		},
 		"Zero Float": {
 			search: "10.3", field: "float32",
@@ -96,10 +104,10 @@ func TestContains(t *testing.T) {
 			output: map[string]interface{}{"float32": 10.3},
 		},
 		"Default": {
-			search: "a", field: "rune",
-			data:   []map[string]interface{}{{"rune": 'a'}, {"rune": 'b'}},
+			search: "a", field: "map",
+			data:   []map[string]interface{}{{"map": map[string]string{"heading": "fail"}}, {"map": map[string]string{"heading": "not good"}}},
 			output: nil,
-			err:    fmt.Errorf("unknown type %s", reflect.TypeOf('a')),
+			err:    fmt.Errorf("unknown type %q", reflect.TypeOf(map[string]string{"heading": "fail"})),
 		},
 	}
 	for name, tc := range testcases {
@@ -109,6 +117,7 @@ func TestContains(t *testing.T) {
 				assert.Nil(t, err, "Was not expecting an error")
 			} else {
 				assert.NotNil(t, err, "Was expecting an error")
+				assert.EqualError(t, err, tc.err.Error(), "Errors did not match")
 			}
 			assert.Equal(t, tc.output, output, "Did not get expected output")
 		})
