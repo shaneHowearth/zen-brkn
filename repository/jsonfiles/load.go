@@ -13,10 +13,10 @@ import (
 
 // datastore -
 type datastore struct {
-	filepaths map[string]string
-	data      map[string][]map[string]interface{}
-	terms     map[string]map[string]reflect.Type
-	groups    []string
+	// filepaths map[string]string
+	data   map[string][]map[string]interface{}
+	terms  map[string]map[string]reflect.Type
+	groups []string
 }
 
 // NewDatastore - New instance of a datastore, with checks to ensure required
@@ -24,26 +24,26 @@ type datastore struct {
 // Allow return of unexported type:
 // nolint: golint
 func NewDatastore(filepaths map[string]string) (*datastore, error) {
+	if len(filepaths) == 0 {
+		return nil, fmt.Errorf("no files supplied, cannot continue")
+	}
 	data := map[string][]map[string]interface{}{}
 	terms := map[string]map[string]reflect.Type{}
 	groups := []string{}
 	ds := datastore{
-		filepaths: filepaths,
-		data:      data,
-		terms:     terms,
-		groups:    groups,
+		// filepaths: filepaths,
+		data:   data,
+		terms:  terms,
+		groups: groups,
 	}
 	var err error
 	for k := range filepaths {
 		ds.groups = append(ds.groups, k)
-		ds.data[k], err = ds.loadFileData(ds.filepaths[k])
+		ds.data[k], err = ds.loadFileData(filepaths[k])
 		if err != nil {
 			return nil, err
 		}
-		ds.terms[k], err = ds.loadTerms(ds.data[k][0])
-		if err != nil {
-			return nil, err
-		}
+		ds.terms[k] = ds.loadTerms(ds.data[k][0])
 	}
 	return &ds, nil
 
@@ -72,9 +72,12 @@ func (ds datastore) GetTerms(group string) (map[string]reflect.Type, error) {
 	return nil, fmt.Errorf("%s does not exist", group)
 }
 
+// Make os.Stat changeable for testing.
+var osStat = os.Stat
+
 // Check file exists, and we have permissons to access it.
 func (ds datastore) fileExists(filepath string) error {
-	if _, err := os.Stat(filepath); err == nil {
+	if _, err := osStat(filepath); err == nil {
 		return nil
 	} else if os.IsNotExist(err) {
 		return fmt.Errorf("%s does not exist", filepath)
@@ -85,18 +88,24 @@ func (ds datastore) fileExists(filepath string) error {
 
 }
 
+// Make ioutil.ReadFile changeable for test purposes
+var ioutilReadFile = ioutil.ReadFile
+
 // Read file contents into memory.
 func (ds datastore) loadFile(filepath string) ([]byte, error) {
 	if err := ds.fileExists(filepath); err != nil {
 		return nil, fmt.Errorf("unable to load file with error %w", err)
 	}
 
-	data, err := ioutil.ReadFile(filepath)
+	data, err := ioutilReadFile(filepath)
 	if err != nil {
 		return nil, fmt.Errorf("readfile error %w", err)
 	}
 	return data, nil
 }
+
+// Make json.Unmarshal changeable for testing.
+var jsonUnmarshal = json.Unmarshal
 
 func (ds datastore) loadFileData(file string) ([]map[string]interface{}, error) {
 	// OS independent path
@@ -108,7 +117,7 @@ func (ds datastore) loadFileData(file string) ([]map[string]interface{}, error) 
 
 	var tempData interface{}
 
-	err = json.Unmarshal(data, &tempData)
+	err = jsonUnmarshal(data, &tempData)
 	if err != nil {
 		return nil, fmt.Errorf("%s unmarshal error %w", file, err)
 	}
@@ -120,42 +129,11 @@ func (ds datastore) loadFileData(file string) ([]map[string]interface{}, error) 
 	return m, nil
 }
 
-func (ds datastore) loadTerms(data map[string]interface{}) (map[string]reflect.Type, error) {
+func (ds datastore) loadTerms(data map[string]interface{}) map[string]reflect.Type {
 	keys := map[string]reflect.Type{}
 	for k := range data {
 		keys[k] = reflect.TypeOf(data[k])
 	}
-	return keys, nil
+	return keys
 
 }
-
-/*
-// LoadData - Load all the data from the files into maps.
-func (ds datastore) LoadData() (err error) {
-	ds.data["Tickets"], err = ds.loadFileData(ds.filepaths["Tickets"])
-	if err != nil {
-		return err
-	}
-	ds.terms["Tickets"], err = ds.loadTerms(ds.data["Tickets"][0])
-	if err != nil {
-		return err
-	}
-
-	ds.data["Users"], err = ds.loadFileData(ds.filepaths["Users"])
-	if err != nil {
-		return err
-	}
-	ds.terms["Users"], err = ds.loadTerms(ds.data["Users"][0])
-	if err != nil {
-		return err
-	}
-
-	ds.data["Organizations"], err = ds.loadFileData(ds.filepaths["Organizations"])
-	if err != nil {
-		return err
-	}
-	ds.terms["Organizations"], err = ds.loadTerms(ds.data["Organizations"][0])
-
-	return err
-}
-*/
