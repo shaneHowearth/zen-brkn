@@ -12,37 +12,36 @@ import (
 func TestNewDatastore(t *testing.T) {
 	testcases := map[string]struct {
 		filepaths map[string]string
-		// ds        *datastore
-		terms  map[string]map[string]reflect.Type
-		groups []string
-		err    error
-		osErr  func(string) (os.FileInfo, error)
-		ioErr  func(string) ([]byte, error)
-		jsErr  func([]byte, interface{}) error
+		terms     map[string]map[string]reflect.Type
+		groups    []string
+		err       error
+		osErr     func(string) (os.FileInfo, error)
+		ioErr     func(string) ([]byte, error)
+		jsErr     func([]byte, interface{}) error
 	}{
 		"Single field, single instance, in single file": {
-			filepaths: map[string]string{"Test": "data/testdata/single.json"},
+			filepaths: map[string]string{"Test": "testdata/single.json"},
 			terms:     map[string]map[string]reflect.Type{"Test": {"_id": reflect.TypeOf(101.1)}},
 			groups:    []string{"Test"},
 		},
 		"Bad filepath": {
-			filepaths: map[string]string{"Test": "data/testdata/nonexistant.json"},
-			err:       fmt.Errorf("data/testdata/nonexistant.json loaddata error unable to load file with error data/testdata/nonexistant.json does not exist"),
+			filepaths: map[string]string{"Test": "testdata/nonexistant.json"},
+			err:       fmt.Errorf("testdata/nonexistant.json loaddata error unable to load file with error testdata/nonexistant.json does not exist"),
 		},
 		"Bad file": {
 			// Note: This returns an error that *isn't* a bad filepath
-			filepaths: map[string]string{"Test": "data/testdata/nonexistant.json"},
-			err:       fmt.Errorf("data/testdata/nonexistant.json loaddata error unable to load file with error data/testdata/nonexistant.json caused error fake error"),
+			filepaths: map[string]string{"Test": "testdata/nonexistant.json"},
+			err:       fmt.Errorf("testdata/nonexistant.json loaddata error unable to load file with error testdata/nonexistant.json caused error fake error"),
 			osErr:     func(string) (os.FileInfo, error) { return nil, fmt.Errorf("fake error") },
 		},
 		"Cannot read file": {
-			filepaths: map[string]string{"Test": "data/testdata/single.json"},
-			err:       fmt.Errorf("data/testdata/single.json loaddata error readfile error fake read error"),
+			filepaths: map[string]string{"Test": "testdata/single.json"},
+			err:       fmt.Errorf("testdata/single.json loaddata error readfile error fake read error"),
 			ioErr:     func(string) ([]byte, error) { return nil, fmt.Errorf("fake read error") },
 		},
 		"json unmarshal error": {
-			filepaths: map[string]string{"Test": "data/testdata/single.json"},
-			err:       fmt.Errorf("data/testdata/single.json unmarshal error fake unmarshal error"),
+			filepaths: map[string]string{"Test": "testdata/single.json"},
+			err:       fmt.Errorf("testdata/single.json unmarshal error fake unmarshal error"),
 			jsErr:     func([]byte, interface{}) error { return fmt.Errorf("fake unmarshal error") },
 		},
 		"No Filepaths": {
@@ -83,7 +82,7 @@ func TestNewDatastore(t *testing.T) {
 }
 
 func TestGetGroupNames(t *testing.T) {
-	filepaths := map[string]string{"Test": "data/testdata/single.json"}
+	filepaths := map[string]string{"Test": "testdata/single.json"}
 	tds, err := NewDatastore(filepaths)
 	assert.Nil(t, err, "No error was expected")
 	assert.NotNil(t, tds, "A datastore was expected")
@@ -99,12 +98,12 @@ func TestGetGroup(t *testing.T) {
 		expectedErr    error
 	}{
 		"Single Group": {
-			filepaths:      map[string]string{"Test": "data/testdata/single.json"},
+			filepaths:      map[string]string{"Test": "testdata/single.json"},
 			groupName:      "Test",
 			expectedOutput: []map[string]interface{}{{"_id": float64(101)}},
 		},
 		"Non-existant group": {
-			filepaths:   map[string]string{"Test": "data/testdata/single.json"},
+			filepaths:   map[string]string{"Test": "testdata/single.json"},
 			groupName:   "nothing",
 			expectedErr: fmt.Errorf("nothing does not exist"),
 		},
@@ -134,12 +133,12 @@ func TestGetTerms(t *testing.T) {
 		expectedErr    error
 	}{
 		"Single Group": {
-			filepaths:      map[string]string{"Test": "data/testdata/single.json"},
+			filepaths:      map[string]string{"Test": "testdata/single.json"},
 			groupName:      "Test",
 			expectedOutput: map[string]reflect.Type{"_id": reflect.TypeOf(float64(101))},
 		},
 		"Non-existant group": {
-			filepaths:   map[string]string{"Test": "data/testdata/single.json"},
+			filepaths:   map[string]string{"Test": "testdata/single.json"},
 			groupName:   "nothing",
 			expectedErr: fmt.Errorf("nothing does not exist"),
 		},
