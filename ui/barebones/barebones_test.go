@@ -29,7 +29,9 @@ func TestShowHelp(t *testing.T) {
 	if _, err := io.Copy(&buf, r); err != nil {
 		log.Fatalf("Copy error, cannot continue %v\n", err)
 	}
-	assert.Equal(t, buf.String(), `Welcome to Zendesk Search
+	assert.Equal(t, buf.String(), `
+
+Welcome to Zendesk Search
 Type 'quit' to exit at any time, Press 'Enter' to continue
 
 

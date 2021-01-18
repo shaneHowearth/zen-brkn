@@ -14,7 +14,9 @@ type Bb struct{}
 
 // ShowHelp -
 func (b Bb) ShowHelp() {
-	fmt.Print(`Welcome to Zendesk Search
+	fmt.Print(`
+
+Welcome to Zendesk Search
 Type 'quit' to exit at any time, Press 'Enter' to continue
 
 
@@ -50,6 +52,7 @@ func setGroup(group string) string {
 // GetCommand - Read command(s) from terminal
 func (b Bb) GetCommand() (map[string]string, error) {
 	b.ShowHelp()
+	fmt.Print("> ")
 
 	m := map[string]string{}
 
@@ -67,12 +70,12 @@ func (b Bb) GetCommand() (map[string]string, error) {
 	// List search terms
 	// TODO - ensure that only one rune exists here, what happens if the user
 	// hits "12"
-	searchTerms := false
 	if strings.Contains(cmdString, "2") {
-		searchTerms = true
+		return m, nil
 	}
 	// Search group
 	fmt.Println("Select 1) Users or 2) Tickets or 3) Organizations")
+	fmt.Print("> ")
 	cmdString, err = reader.ReadString('\n')
 	if err != nil {
 		return nil, fmt.Errorf("unable to get search group with error %w", err)
@@ -82,12 +85,10 @@ func (b Bb) GetCommand() (map[string]string, error) {
 		return m, nil
 	}
 	m["group"] = setGroup(strings.TrimSpace(cmdString))
-	if searchTerms {
-		return m, nil
-	}
 
 	// Search Term
 	fmt.Println("Enter search term")
+	fmt.Print("> ")
 	cmdString, err = reader.ReadString('\n')
 	if err != nil {
 		return nil, fmt.Errorf("unable to get search term with error %w", err)
@@ -96,6 +97,7 @@ func (b Bb) GetCommand() (map[string]string, error) {
 
 	// Search Value
 	fmt.Println("Enter search value")
+	fmt.Print("> ")
 	cmdString, err = reader.ReadString('\n')
 	if err != nil {
 		return nil, fmt.Errorf("unable to get search value with error %w", err)
@@ -107,6 +109,7 @@ func (b Bb) GetCommand() (map[string]string, error) {
 
 // ShowResults - Print out results
 func (b Bb) ShowResults(input []string) error {
+	fmt.Println()
 	// Align columns to the left
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', 0)
 	for i := range input {
