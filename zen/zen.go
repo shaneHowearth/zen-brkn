@@ -94,7 +94,7 @@ func (z *zen) Run() {
 
 			d, err := z.searcher.Contains(cmds["value"], cmds["term"], group)
 			if err != nil {
-				z.ui.ShowResults([]string{fmt.Sprintf("Search %s of %s returned error %#v", cmds["term"], cmds["group"], err)})
+				z.ui.ShowResults([]string{fmt.Sprintf("Search %q of %q returned error: %v", cmds["term"], cmds["group"], err)})
 				break
 			}
 			dVals := []string{}
@@ -103,6 +103,7 @@ func (z *zen) Run() {
 			}
 			sort.Strings(dVals)
 			if len(dVals) == 0 {
+				dVals = append(dVals, fmt.Sprintf("Search %q for %q with value of %v", cmds["group"], cmds["term"], cmds["value"]))
 				dVals = append(dVals, "No results found")
 			}
 			z.ui.ShowResults(dVals)
