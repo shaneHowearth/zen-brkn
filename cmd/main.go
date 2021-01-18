@@ -14,6 +14,9 @@ func main() {
 	// Create the concrete instances required to run the app
 
 	// Repository
+	// Note: There is no check on number of files, or that certain files have
+	// been added. Only a check that at least one has been added.
+	// Having no checks allows any number of other sets to be added.
 	ds, err := jsonfiles.NewDatastore(map[string]string{
 		"Organizations": "../repository/jsonfiles/data/organizations.json",
 		"Tickets":       "../repository/jsonfiles/data/tickets.json",
