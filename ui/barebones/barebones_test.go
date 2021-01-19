@@ -114,33 +114,3 @@ func TestGetCommand(t *testing.T) {
 		})
 	}
 }
-
-func TestShowResults(t *testing.T) {
-	s := barebones.Bb{}
-	testcases := map[string]struct {
-		input  []string
-		output string
-	}{
-		"Single item": {
-			input:  []string{"Test String"},
-			output: "Test String\n",
-		},
-	}
-	for name, tc := range testcases {
-		t.Run(name, func(t *testing.T) {
-			orig := os.Stdout
-			r, w, _ := os.Pipe()
-			os.Stdout = w
-
-			defer func() { os.Stdout = orig }()
-			// Run command to be tested
-			s.ShowResults(tc.input)
-			w.Close()
-			var buf bytes.Buffer
-			if _, err := io.Copy(&buf, r); err != nil {
-				log.Fatalf("Copy error, cannot continue %v\n", err)
-			}
-			assert.Equal(t, buf.String(), tc.output, "Output string does not match")
-		})
-	}
-}

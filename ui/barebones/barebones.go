@@ -107,11 +107,14 @@ func (b Bb) GetCommand() (map[string]string, error) {
 	return m, nil
 }
 
+// make os.Stdout changeable for tests.
+var osStdout = os.Stdout
+
 // ShowResults - Print out results
 func (b Bb) ShowResults(input []string) error {
 	fmt.Println()
 	// Align columns to the left
-	w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', 0)
+	w := tabwriter.NewWriter(osStdout, 0, 0, 1, ' ', 0)
 	for i := range input {
 		fmt.Fprintln(w, input[i])
 	}
