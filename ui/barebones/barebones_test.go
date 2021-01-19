@@ -60,10 +60,6 @@ func TestGetCommand(t *testing.T) {
 			input: []string{"meaningless\n"},
 			rErr:  fmt.Errorf("unable to get user search option with error EOF"),
 		},
-		// "Searchable fields": {
-		// input: []string{"2\n"},
-		// output: map[string]string(nil)
-		// },
 	}
 
 	for name, tc := range testcases {
@@ -90,18 +86,6 @@ func TestGetCommand(t *testing.T) {
 			if tc.rErr != nil {
 				r = nil
 			}
-			// if len(tc.input) > 1 {
-			// r, w, err = os.Pipe()
-			// if err != nil {
-			// t.Fatal(err)
-			// }
-			// input = []byte(tc.input[1])
-			// _, err = w.Write(input)
-			// if err != nil {
-			// t.Error(err)
-			// }
-			// w.Close()
-			// }
 
 			output, err := s.GetCommand()
 
