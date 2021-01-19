@@ -101,7 +101,7 @@ func (z *zen) Run() {
 	// Main loop
 	for {
 		vals := []string{}
-		cmds, err := z.ui.GetCommand()
+		cmds, err := z.ui.GetCommand(z.datastore.GetGroupNames())
 		if err != nil {
 			// Going to DIAF here because the error may be that the user cannot
 			// provide input that the application can handle, which might stop a

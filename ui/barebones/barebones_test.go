@@ -87,7 +87,7 @@ func TestGetCommand(t *testing.T) {
 				r = nil
 			}
 
-			output, err := s.GetCommand()
+			output, err := s.GetCommand([]string{})
 
 			if tc.rErr != nil {
 				assert.Errorf(t, tc.rErr, err.Error(), "Error isn't what was expected")

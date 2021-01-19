@@ -43,7 +43,7 @@ type uiMock struct{}
 var testCommand map[string]string
 var testCommandErr error
 
-func (u uiMock) GetCommand() (map[string]string, error) {
+func (u uiMock) GetCommand([]string) (map[string]string, error) {
 	return testCommand, testCommandErr
 }
 

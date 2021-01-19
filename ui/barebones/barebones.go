@@ -5,6 +5,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"text/tabwriter"
 )
@@ -37,7 +38,7 @@ func (b Bb) Exit() {
 	osExit(0)
 }
 
-func setGroup(group string) string {
+func setGroup(group string, groups []string) string {
 	switch group {
 	case "1":
 		group = "Users"
@@ -50,7 +51,7 @@ func setGroup(group string) string {
 }
 
 // GetCommand - Read command(s) from terminal
-func (b Bb) GetCommand() (map[string]string, error) {
+func (b Bb) GetCommand(groups []string) (map[string]string, error) {
 	b.ShowHelp()
 	fmt.Print("> ")
 
@@ -74,17 +75,54 @@ func (b Bb) GetCommand() (map[string]string, error) {
 		return m, nil
 	}
 	// Search group
-	fmt.Println("Select 1) Users or 2) Tickets or 3) Organizations")
-	fmt.Print("> ")
-	cmdString, err = reader.ReadString('\n')
-	if err != nil {
-		return nil, fmt.Errorf("unable to get search group with error %w", err)
+	getGroup := func() (string, error) {
+
+		s := []string{}
+		for i := range groups {
+			s = append(s, fmt.Sprintf("%d) %s", i+1, groups[i]))
+		}
+		joined := ""
+		if len(s) > 1 {
+			joined = strings.Join(s[:len(s)-1], " or ")
+			fmt.Printf("Select %s %s\n> ", joined, s[len(s)-1])
+		} else {
+			fmt.Printf("Select %s\n", s)
+		}
+		cmdString, err = reader.ReadString('\n')
+		return cmdString, err
 	}
-	if strings.Contains(cmdString, "q") {
-		m["command"] = strings.TrimSpace(cmdString)
-		return m, nil
+	maxTries := 3
+	var num int
+	for i := 0; i < maxTries; i++ {
+		// give the user 3 shots to enter decent input
+		input := ""
+		input, err = getGroup()
+		if err != nil {
+			return nil, fmt.Errorf("unable to get search group with error %w", err)
+		}
+		if strings.Contains(input, "q") {
+			m["command"] = strings.TrimSpace(input)
+			return m, nil
+		}
+		num, err = strconv.Atoi(strings.TrimSpace(cmdString))
+		if i+1 < maxTries {
+			if err != nil {
+				fmt.Printf("Please enter a valid group number, you have %d tries left\n", maxTries-i-1)
+				continue
+			}
+			if num < 1 || num > len(groups) {
+				fmt.Printf("Please enter a valid group number, you have %d tries left\n", maxTries-i-1)
+				continue
+			}
+		} else {
+			m["command"] = strings.TrimSpace("q")
+			return m, nil
+
+		}
+		break
 	}
-	m["group"] = setGroup(strings.TrimSpace(cmdString))
+	m["group"] = groups[num-1]
+	fmt.Println(m["group"])
 
 	// Search Term
 	fmt.Println("Enter search term")
