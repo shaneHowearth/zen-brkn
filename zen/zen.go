@@ -48,65 +48,76 @@ func NewZen(d storage.Store, u userinterface.UI, s search.Search) (*zen, error) 
 	return &zen{datastore: d, ui: u, searcher: s}, nil
 }
 
-// Make log.Printf changeable for testing
-var logPrintf = log.Printf
+func (z *zen) searchTerms() []string {
+	vals := []string{}
+	// Get available search terms
+	for _, group := range z.datastore.GetGroupNames() {
+		terms, err := z.datastore.GetTerms(group)
+		if err != nil {
+			return []string{"Cannot retrieve terms"}
+		}
+		vals = append(vals, fmt.Sprintf("Search %s with", group))
+		tmpVals := []string{}
+		for k, v := range terms {
+			tmpVals = append(tmpVals, fmt.Sprintf("%s, \t\t\t%s", k, v))
+		}
+		sort.Strings(tmpVals)
+		vals = append(vals, tmpVals...)
+		vals = append(vals, fmt.Sprint("---------------"))
+
+	}
+	return vals
+}
+
+func (z *zen) findMatch(cmds map[string]string) []string {
+	// Get lines from the specified group that contain the specified
+	// search term
+	group, err := z.datastore.GetGroup(cmds["group"])
+	if err != nil {
+		return []string{fmt.Sprintf("Cannot retrieve %q", cmds["group"])}
+	}
+
+	d, err := z.searcher.Contains(cmds["value"], cmds["term"], group)
+	if err != nil {
+		return []string{fmt.Sprintf("Search %q of %q returned error: %v", cmds["term"], cmds["group"], err)}
+	}
+
+	vals := []string{}
+	for k, v := range d {
+		vals = append(vals, fmt.Sprintf("%s, \t%v", k, v))
+
+	}
+	sort.Strings(vals)
+	if len(vals) == 0 {
+		vals = append(vals, fmt.Sprintf("Search %q for %q with value of %q", cmds["group"], cmds["term"], cmds["value"]))
+		vals = append(vals, "No results found")
+
+	}
+	return vals
+}
 
 // Run -
 func (z *zen) Run() {
 	// Main loop
 	for {
+		vals := []string{}
 		cmds, err := z.ui.GetCommand()
 		if err != nil {
-			logPrintf("ui.GetCommand error %v", err)
-			break
+			// Going to DIAF here because the error may be that the user cannot
+			// provide input that the application can handle, which might stop a
+			// 'quit' being sent.
+			log.Printf("cannot continue ui.GetCommand error %v", err)
+			z.ui.Exit()
 		}
 		switch cmds["command"] {
 		case "quit", "q":
 			// Quit
 			z.ui.Exit()
 		case "2":
-			// Get available search terms
-			for _, group := range z.datastore.GetGroupNames() {
-
-				terms, err := z.datastore.GetTerms(group)
-				if err != nil {
-					z.ui.ShowResults([]string{"Cannot retrieve terms"})
-					break
-				}
-				termVals := []string{fmt.Sprintf("Search %s with", group)}
-				tmpVals := []string{}
-				for k, v := range terms {
-					tmpVals = append(tmpVals, fmt.Sprintf("%s, \t\t\t%s", k, v))
-				}
-				sort.Strings(tmpVals)
-				termVals = append(termVals, tmpVals...)
-				termVals = append(termVals, fmt.Sprint("---------------"))
-				z.ui.ShowResults(termVals)
-			}
+			vals = z.searchTerms()
 		case "1":
-			// Get lines from the specified group that contain the specified
-			// search term
-			group, err := z.datastore.GetGroup(cmds["group"])
-			if err != nil {
-				z.ui.ShowResults([]string{fmt.Sprintf("Cannot retrieve %s", cmds["group"])})
-				break
-			}
-
-			d, err := z.searcher.Contains(cmds["value"], cmds["term"], group)
-			if err != nil {
-				z.ui.ShowResults([]string{fmt.Sprintf("Search %q of %q returned error: %v", cmds["term"], cmds["group"], err)})
-				break
-			}
-			dVals := []string{}
-			for k, v := range d {
-				dVals = append(dVals, fmt.Sprintf("%s, \t%v", k, v))
-			}
-			sort.Strings(dVals)
-			if len(dVals) == 0 {
-				dVals = append(dVals, fmt.Sprintf("Search %q for %q with value of %v", cmds["group"], cmds["term"], cmds["value"]))
-				dVals = append(dVals, "No results found")
-			}
-			z.ui.ShowResults(dVals)
+			vals = z.findMatch(cmds)
 		}
+		z.ui.ShowResults(vals)
 	}
 }
