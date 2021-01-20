@@ -122,7 +122,6 @@ func (b Bb) GetCommand(groups []string) (map[string]string, error) {
 		break
 	}
 	m["group"] = groups[num-1]
-	fmt.Println(m["group"])
 
 	// Search Term
 	fmt.Println("Enter search term")
