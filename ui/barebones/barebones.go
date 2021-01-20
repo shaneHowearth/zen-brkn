@@ -38,18 +38,6 @@ func (b Bb) Exit() {
 	osExit(0)
 }
 
-func setGroup(group string, groups []string) string {
-	switch group {
-	case "1":
-		group = "Users"
-	case "2":
-		group = "Tickets"
-	case "3":
-		group = "Organizations"
-	}
-	return group
-}
-
 // GetCommand - Read command(s) from terminal
 func (b Bb) GetCommand(groups []string) (map[string]string, error) {
 	b.ShowHelp()
