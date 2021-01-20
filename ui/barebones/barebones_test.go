@@ -74,6 +74,10 @@ func TestGetCommand(t *testing.T) {
 			defer func() {
 				os.Stdin = orig
 			}()
+
+			if tc.rErr != nil {
+				r = nil
+			}
 			os.Stdin = r
 
 			input := []byte(tc.input[0])
@@ -82,10 +86,6 @@ func TestGetCommand(t *testing.T) {
 				t.Error(err)
 			}
 			w.Close()
-
-			if tc.rErr != nil {
-				r = nil
-			}
 
 			output, err := s.GetCommand([]string{})
 

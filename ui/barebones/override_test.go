@@ -41,8 +41,8 @@ func TestShowResults(t *testing.T) {
 
 			defer func() { osStdout = orig }()
 			// Run command to be tested
-			s.ShowResults(tc.input)
-
+			err = s.ShowResults(tc.input)
+			assert.Nil(t, err, "No error expected")
 			w.Close()
 			// var buf bytes.Buffer
 			var buf strings.Builder

@@ -63,7 +63,7 @@ func (z *zen) searchTerms() []string {
 		}
 		sort.Strings(tmpVals)
 		vals = append(vals, tmpVals...)
-		vals = append(vals, fmt.Sprint("---------------"))
+		vals = append(vals, "---------------")
 
 	}
 	return vals
@@ -118,6 +118,8 @@ func (z *zen) Run() {
 		case "1":
 			vals = z.findMatch(cmds)
 		}
-		z.ui.ShowResults(vals)
+		if err := z.ui.ShowResults(vals); err != nil {
+			log.Printf("Show Results returned an error %v", err)
+		}
 	}
 }
