@@ -23,3 +23,13 @@ Type 'quit' to exit at any time, Press 'Enter' to continue
 func (c *CLI) DataMenu() string {
 	return "Select 1) Users or 2) Tickets or 3) Organizations"
 }
+
+// SearchTerm -
+func (c *CLI) SearchTerm() string {
+	return "Enter search term"
+}
+
+// SearchValue -
+func (c *CLI) SearchValue() string {
+	return "Enter search value"
+}

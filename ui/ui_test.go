@@ -30,3 +30,17 @@ func TestDataMenu(t *testing.T) {
 	output := c.DataMenu()
 	assert.Equal(t, expected, output, "Data Menu output did not match")
 }
+
+func TestSearchTerm(t *testing.T) {
+	expected := "Enter search term"
+	c := ui.CLI{}
+	output := c.SearchTerm()
+	assert.Equal(t, expected, output, "Data Menu output did not match")
+}
+
+func TestSearchValue(t *testing.T) {
+	expected := "Enter search value"
+	c := ui.CLI{}
+	output := c.SearchValue()
+	assert.Equal(t, expected, output, "Data Menu output did not match")
+}
