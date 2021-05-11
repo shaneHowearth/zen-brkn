@@ -17,8 +17,16 @@ Type 'quit' to exit at any time, Press 'Enter' to continue
 	 * Press 1 to search Zendesk
 	 * Press 2 to view a list of searchable fields
 	 * Type 'quit' or 'q' to exit
+
 `
 	c := ui.CLI{}
 	output := c.WelcomeMenu()
-	assert.Equal(t, expected, output, "Menu output did not match")
+	assert.Equal(t, expected, output, "Welcome Menu output did not match")
+}
+
+func TestDataMenu(t *testing.T) {
+	expected := "Select 1) Users or 2) Tickets or 3) Organizations"
+	c := ui.CLI{}
+	output := c.DataMenu()
+	assert.Equal(t, expected, output, "Data Menu output did not match")
 }
