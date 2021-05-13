@@ -3,6 +3,7 @@ package repo
 import (
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 // Ticket -
@@ -46,23 +47,23 @@ func (d *Data) TicketIndexes() {
 	d.TicketIdx["DueAt"] = make(map[string][]*Ticket)
 	d.TicketIdx["Via"] = make(map[string][]*Ticket)
 	for i := range d.Tickets {
-		d.TicketIdx["ID"][d.Tickets[i].ID] = append(d.TicketIdx["ID"][d.Tickets[i].ID], d.Tickets[i])
-		d.TicketIdx["URL"][d.Tickets[i].URL] = append(d.TicketIdx["URL"][d.Tickets[i].URL], d.Tickets[i])
-		d.TicketIdx["ExternalID"][d.Tickets[i].ExternalID] = append(d.TicketIdx["ExternalID"][d.Tickets[i].ExternalID], d.Tickets[i])
-		d.TicketIdx["CreatedAt"][d.Tickets[i].CreatedAt] = append(d.TicketIdx["CreatedAt"][d.Tickets[i].CreatedAt], d.Tickets[i])
-		d.TicketIdx["Type"][d.Tickets[i].Type] = append(d.TicketIdx["Type"][d.Tickets[i].Type], d.Tickets[i])
-		d.TicketIdx["Subject"][d.Tickets[i].Subject] = append(d.TicketIdx["Subject"][d.Tickets[i].Subject], d.Tickets[i])
-		d.TicketIdx["Description"][d.Tickets[i].Description] = append(d.TicketIdx["Description"][d.Tickets[i].Description], d.Tickets[i])
-		d.TicketIdx["Priority"][d.Tickets[i].Priority] = append(d.TicketIdx["Priority"][d.Tickets[i].Priority], d.Tickets[i])
-		d.TicketIdx["Status"][d.Tickets[i].Status] = append(d.TicketIdx["Status"][d.Tickets[i].Status], d.Tickets[i])
+		d.TicketIdx["ID"][strings.ToLower(d.Tickets[i].ID)] = append(d.TicketIdx["ID"][strings.ToLower(d.Tickets[i].ID)], d.Tickets[i])
+		d.TicketIdx["URL"][strings.ToLower(d.Tickets[i].URL)] = append(d.TicketIdx["URL"][strings.ToLower(d.Tickets[i].URL)], d.Tickets[i])
+		d.TicketIdx["ExternalID"][strings.ToLower(d.Tickets[i].ExternalID)] = append(d.TicketIdx["ExternalID"][strings.ToLower(d.Tickets[i].ExternalID)], d.Tickets[i])
+		d.TicketIdx["CreatedAt"][strings.ToLower(d.Tickets[i].CreatedAt)] = append(d.TicketIdx["CreatedAt"][strings.ToLower(d.Tickets[i].CreatedAt)], d.Tickets[i])
+		d.TicketIdx["Type"][strings.ToLower(d.Tickets[i].Type)] = append(d.TicketIdx["Type"][strings.ToLower(d.Tickets[i].Type)], d.Tickets[i])
+		d.TicketIdx["Subject"][strings.ToLower(d.Tickets[i].Subject)] = append(d.TicketIdx["Subject"][strings.ToLower(d.Tickets[i].Subject)], d.Tickets[i])
+		d.TicketIdx["Description"][strings.ToLower(d.Tickets[i].Description)] = append(d.TicketIdx["Description"][strings.ToLower(d.Tickets[i].Description)], d.Tickets[i])
+		d.TicketIdx["Priority"][strings.ToLower(d.Tickets[i].Priority)] = append(d.TicketIdx["Priority"][strings.ToLower(d.Tickets[i].Priority)], d.Tickets[i])
+		d.TicketIdx["Status"][strings.ToLower(d.Tickets[i].Status)] = append(d.TicketIdx["Status"][strings.ToLower(d.Tickets[i].Status)], d.Tickets[i])
 		d.TicketIdx["SubmitterID"][fmt.Sprintf("%d", d.Tickets[i].SubmitterID)] = append(d.TicketIdx["SubmitterID"][fmt.Sprintf("%d", d.Tickets[i].SubmitterID)], d.Tickets[i])
 		d.TicketIdx["AssigneeID"][fmt.Sprintf("%d", d.Tickets[i].AssigneeID)] = append(d.TicketIdx["AssigneeID"][fmt.Sprintf("%d", d.Tickets[i].AssigneeID)], d.Tickets[i])
 		d.TicketIdx["OrganizationID"][fmt.Sprintf("%d", d.Tickets[i].OrganizationID)] = append(d.TicketIdx["OrganizationID"][fmt.Sprintf("%d", d.Tickets[i].OrganizationID)], d.Tickets[i])
 		for _, tag := range d.Tickets[i].Tags {
-			d.TicketIdx["Tags"][tag] = append(d.TicketIdx["Tags"][tag], d.Tickets[i])
+			d.TicketIdx["Tags"][strings.ToLower(tag)] = append(d.TicketIdx["Tags"][strings.ToLower(tag)], d.Tickets[i])
 		}
 		d.TicketIdx["HasIncidents"][strconv.FormatBool(d.Tickets[i].HasIncidents)] = append(d.TicketIdx["HasIncidents"][strconv.FormatBool(d.Tickets[i].HasIncidents)], d.Tickets[i])
-		d.TicketIdx["DueAt"][d.Tickets[i].DueAt] = append(d.TicketIdx["DueAt"][d.Tickets[i].DueAt], d.Tickets[i])
-		d.TicketIdx["Via"][d.Tickets[i].Via] = append(d.TicketIdx["Via"][d.Tickets[i].Via], d.Tickets[i])
+		d.TicketIdx["DueAt"][strings.ToLower(d.Tickets[i].DueAt)] = append(d.TicketIdx["DueAt"][strings.ToLower(d.Tickets[i].DueAt)], d.Tickets[i])
+		d.TicketIdx["Via"][strings.ToLower(d.Tickets[i].Via)] = append(d.TicketIdx["Via"][strings.ToLower(d.Tickets[i].Via)], d.Tickets[i])
 	}
 }
