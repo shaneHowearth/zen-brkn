@@ -3,7 +3,6 @@ package repo
 import (
 	"fmt"
 	"strconv"
-	"strings"
 )
 
 // User -
@@ -70,7 +69,9 @@ func (d *Data) UserIndexes() {
 		d.UserIdx["Phone"][d.Users[i].Phone] = append(d.UserIdx["Phone"][d.Users[i].Phone], d.Users[i])
 		d.UserIdx["Signature"][d.Users[i].Signature] = append(d.UserIdx["Signature"][d.Users[i].Signature], d.Users[i])
 		d.UserIdx["OrganizationID"][fmt.Sprintf("%d", d.Users[i].OrganizationID)] = append(d.UserIdx["OrganizationID"][fmt.Sprintf("%d", d.Users[i].OrganizationID)], d.Users[i])
-		d.UserIdx["Tags"][strings.Join(d.Users[i].Tags, ",")] = append(d.UserIdx["Tags"][strings.Join(d.Users[i].Tags, ",")], d.Users[i])
+		for _, tag := range d.Users[i].Tags {
+			d.UserIdx["Tags"][tag] = append(d.UserIdx["Tags"][tag], d.Users[i])
+		}
 		d.UserIdx["Suspended"][strconv.FormatBool(d.Users[i].Suspended)] = append(d.UserIdx["Suspended"][strconv.FormatBool(d.Users[i].Suspended)], d.Users[i])
 		d.UserIdx["Role"][d.Users[i].Role] = append(d.UserIdx["Role"][d.Users[i].Role], d.Users[i])
 	}

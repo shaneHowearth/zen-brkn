@@ -3,7 +3,6 @@ package repo
 import (
 	"fmt"
 	"strconv"
-	"strings"
 )
 
 // Ticket -
@@ -59,7 +58,9 @@ func (d *Data) TicketIndexes() {
 		d.TicketIdx["SubmitterID"][fmt.Sprintf("%d", d.Tickets[i].SubmitterID)] = append(d.TicketIdx["SubmitterID"][fmt.Sprintf("%d", d.Tickets[i].SubmitterID)], d.Tickets[i])
 		d.TicketIdx["AssigneeID"][fmt.Sprintf("%d", d.Tickets[i].AssigneeID)] = append(d.TicketIdx["AssigneeID"][fmt.Sprintf("%d", d.Tickets[i].AssigneeID)], d.Tickets[i])
 		d.TicketIdx["OrganizationID"][fmt.Sprintf("%d", d.Tickets[i].OrganizationID)] = append(d.TicketIdx["OrganizationID"][fmt.Sprintf("%d", d.Tickets[i].OrganizationID)], d.Tickets[i])
-		d.TicketIdx["Tags"][strings.Join(d.Tickets[i].Tags, ",")] = append(d.TicketIdx["Tags"][strings.Join(d.Tickets[i].Tags, ",")], d.Tickets[i])
+		for _, tag := range d.Tickets[i].Tags {
+			d.TicketIdx["Tags"][tag] = append(d.TicketIdx["Tags"][tag], d.Tickets[i])
+		}
 		d.TicketIdx["HasIncidents"][strconv.FormatBool(d.Tickets[i].HasIncidents)] = append(d.TicketIdx["HasIncidents"][strconv.FormatBool(d.Tickets[i].HasIncidents)], d.Tickets[i])
 		d.TicketIdx["DueAt"][d.Tickets[i].DueAt] = append(d.TicketIdx["DueAt"][d.Tickets[i].DueAt], d.Tickets[i])
 		d.TicketIdx["Via"][d.Tickets[i].Via] = append(d.TicketIdx["Via"][d.Tickets[i].Via], d.Tickets[i])
