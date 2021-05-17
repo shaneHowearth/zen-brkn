@@ -8,25 +8,20 @@ import (
 	"path/filepath"
 )
 
-// store - all Data types must implement this interface
-type store interface {
-	ToDTO() (map[string]string, error)
+// item - all Data types must implement this interface
+type item interface {
+	ToDTO() map[string]string
+	CreateIndex(interface{}, string) map[string]map[string][]item
 }
 
 // Data -
 type Data struct {
 	// Book keeping
-	Groups  []string
-	Terms   map[string]map[string]struct{}
-	Indexes map[string]string
-	// Data
-	Organisations []*Organisation
-	Users         []*User
-	Tickets       []*Ticket
-	// Indexes
-	OrgIdx    map[string]map[string][]*Organisation // map[fieldname]map[fieldvalue][]*Organisation
-	UserIdx   map[string]map[string][]*User         // map[fieldname]map[fieldvalue][]*User
-	TicketIdx map[string]map[string][]*Ticket       // map[fieldname]map[fieldvalue][]*Ticket
+	Groups []string
+	Terms  map[string]map[string]struct{}
+
+	Data    map[string][]map[string]string          // map[data group][]map[fieldname]field value
+	Indexes map[string]map[string]map[string][]item // map[data group name]map[field name]map[field value][]item
 }
 
 // Make os.Stat changeable for testing.
@@ -66,13 +61,17 @@ var jsonUnmarshal = json.Unmarshal
 
 // LoadJSON -
 func (d *Data) LoadJSON() error {
+	tickets := []*Ticket{}
+	users := []*User{}
+	organisations := []*Organisation{}
 	files := []struct {
+		name      string
 		filename  string
 		container interface{}
 	}{
-		{"data/tickets.json", &d.Tickets},
-		{"data/users.json", &d.Users},
-		{"data/organizations.json", &d.Organisations},
+		{"ticket", "data/tickets.json", &tickets},
+		{"user", "data/users.json", &users},
+		{"organisation", "data/organizations.json", &organisations},
 	}
 
 	for i := range files {
@@ -89,13 +88,21 @@ func (d *Data) LoadJSON() error {
 		if err != nil {
 			return fmt.Errorf("%s unmarshal error %w", files[i].filename, err)
 		}
+
+		// Convert the container into a DTO
+		for j := range files[i].container.([]item) {
+			d.Data[files[i].name] = append(d.Data[files[i].name], files[i].container.([]item)[j].ToDTO())
+		}
+
+		// Create Index for this group
+		if len(files[i].container.([]item)) >= 1 {
+			d.Indexes[files[i].name] = files[i].container.([]item)[0].CreateIndex(d, files[i].name)
+			d.Terms[files[i].name] = map[string]struct{}{}
+			for k := range d.Indexes[files[i].name] {
+				d.Terms[files[i].name][k] = struct{}{}
+			}
+		}
 	}
 
-	// Create indexes
-	// Note: The list of terms needs to be added to as part of the index
-	// creation
-	d.TicketIndexes()
-	d.OrganisationIndexes()
-	d.UserIndexes()
 	return nil
 }

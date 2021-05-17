@@ -26,62 +26,53 @@ type Ticket struct {
 	Via            string   `json:"via"`
 }
 
-// TicketIndexes -
-func (d *Data) TicketIndexes() {
+// ToDTO - TODO
+func (t *Ticket) ToDTO() map[string]string {
+	return nil
+}
+
+// CreateIndex -
+func (t *Ticket) CreateIndex(in interface{}, name string) map[string]map[string][]item {
+	d := in.([]*Ticket)
+	// TicketIndexes -
+	// func (d *Data) TicketIndexes() {
 	// map[fieldname]map[fieldvalue][]*Ticket
-	d.TicketIdx = make(map[string]map[string][]*Ticket)
-	d.TicketIdx["_id"] = make(map[string][]*Ticket)
-	d.TicketIdx["url"] = make(map[string][]*Ticket)
-	d.TicketIdx["external_id"] = make(map[string][]*Ticket)
-	d.TicketIdx["created_at"] = make(map[string][]*Ticket)
-	d.TicketIdx["type"] = make(map[string][]*Ticket)
-	d.TicketIdx["subject"] = make(map[string][]*Ticket)
-	d.TicketIdx["description"] = make(map[string][]*Ticket)
-	d.TicketIdx["priority"] = make(map[string][]*Ticket)
-	d.TicketIdx["status"] = make(map[string][]*Ticket)
-	d.TicketIdx["submitter_id"] = make(map[string][]*Ticket)
-	d.TicketIdx["assignee_id"] = make(map[string][]*Ticket)
-	d.TicketIdx["organization_id"] = make(map[string][]*Ticket)
-	d.TicketIdx["tags"] = make(map[string][]*Ticket)
-	d.TicketIdx["has_incidents"] = make(map[string][]*Ticket)
-	d.TicketIdx["due_at"] = make(map[string][]*Ticket)
-	d.TicketIdx["via"] = make(map[string][]*Ticket)
-	d.Terms["tickets"] = map[string]struct{}{
-		"_id":             struct{}{},
-		"url":             struct{}{},
-		"external_id":     struct{}{},
-		"created_at":      struct{}{},
-		"type":            struct{}{},
-		"subject":         struct{}{},
-		"description":     struct{}{},
-		"priority":        struct{}{},
-		"status":          struct{}{},
-		"submitter_id":    struct{}{},
-		"assignee_id":     struct{}{},
-		"organization_id": struct{}{},
-		"tags":            struct{}{},
-		"has_incidents":   struct{}{},
-		"due_at":          struct{}{},
-		"via":             struct{}{},
-	}
-	for i := range d.Tickets {
-		d.TicketIdx["_id"][strings.ToLower(d.Tickets[i].ID)] = append(d.TicketIdx["_id"][strings.ToLower(d.Tickets[i].ID)], d.Tickets[i])
-		d.TicketIdx["url"][strings.ToLower(d.Tickets[i].URL)] = append(d.TicketIdx["url"][strings.ToLower(d.Tickets[i].URL)], d.Tickets[i])
-		d.TicketIdx["external_id"][strings.ToLower(d.Tickets[i].ExternalID)] = append(d.TicketIdx["external_id"][strings.ToLower(d.Tickets[i].ExternalID)], d.Tickets[i])
-		d.TicketIdx["created_at"][strings.ToLower(d.Tickets[i].CreatedAt)] = append(d.TicketIdx["created_at"][strings.ToLower(d.Tickets[i].CreatedAt)], d.Tickets[i])
-		d.TicketIdx["type"][strings.ToLower(d.Tickets[i].Type)] = append(d.TicketIdx["type"][strings.ToLower(d.Tickets[i].Type)], d.Tickets[i])
-		d.TicketIdx["subject"][strings.ToLower(d.Tickets[i].Subject)] = append(d.TicketIdx["subject"][strings.ToLower(d.Tickets[i].Subject)], d.Tickets[i])
-		d.TicketIdx["description"][strings.ToLower(d.Tickets[i].Description)] = append(d.TicketIdx["description"][strings.ToLower(d.Tickets[i].Description)], d.Tickets[i])
-		d.TicketIdx["priority"][strings.ToLower(d.Tickets[i].Priority)] = append(d.TicketIdx["priority"][strings.ToLower(d.Tickets[i].Priority)], d.Tickets[i])
-		d.TicketIdx["status"][strings.ToLower(d.Tickets[i].Status)] = append(d.TicketIdx["status"][strings.ToLower(d.Tickets[i].Status)], d.Tickets[i])
-		d.TicketIdx["submitter_id"][fmt.Sprintf("%d", d.Tickets[i].SubmitterID)] = append(d.TicketIdx["submitter_id"][fmt.Sprintf("%d", d.Tickets[i].SubmitterID)], d.Tickets[i])
-		d.TicketIdx["assignee_id"][fmt.Sprintf("%d", d.Tickets[i].AssigneeID)] = append(d.TicketIdx["assignee_id"][fmt.Sprintf("%d", d.Tickets[i].AssigneeID)], d.Tickets[i])
-		d.TicketIdx["organization_id"][fmt.Sprintf("%d", d.Tickets[i].OrganizationID)] = append(d.TicketIdx["organization_id"][fmt.Sprintf("%d", d.Tickets[i].OrganizationID)], d.Tickets[i])
-		for _, tag := range d.Tickets[i].Tags {
-			d.TicketIdx["tags"][strings.ToLower(tag)] = append(d.TicketIdx["tags"][strings.ToLower(tag)], d.Tickets[i])
+	m := make(map[string]map[string][]item)
+	m["_id"] = make(map[string][]item)
+	m["url"] = make(map[string][]item)
+	m["external_id"] = make(map[string][]item)
+	m["created_at"] = make(map[string][]item)
+	m["type"] = make(map[string][]item)
+	m["subject"] = make(map[string][]item)
+	m["description"] = make(map[string][]item)
+	m["priority"] = make(map[string][]item)
+	m["status"] = make(map[string][]item)
+	m["submitter_id"] = make(map[string][]item)
+	m["assignee_id"] = make(map[string][]item)
+	m["organization_id"] = make(map[string][]item)
+	m["tags"] = make(map[string][]item)
+	m["has_incidents"] = make(map[string][]item)
+	m["due_at"] = make(map[string][]item)
+	m["via"] = make(map[string][]item)
+	for i := range d {
+		m["_id"][strings.ToLower(d[i].ID)] = append(m["_id"][strings.ToLower(d[i].ID)], d[i])
+		m["url"][strings.ToLower(d[i].URL)] = append(m["url"][strings.ToLower(d[i].URL)], d[i])
+		m["external_id"][strings.ToLower(d[i].ExternalID)] = append(m["external_id"][strings.ToLower(d[i].ExternalID)], d[i])
+		m["created_at"][strings.ToLower(d[i].CreatedAt)] = append(m["created_at"][strings.ToLower(d[i].CreatedAt)], d[i])
+		m["type"][strings.ToLower(d[i].Type)] = append(m["type"][strings.ToLower(d[i].Type)], d[i])
+		m["subject"][strings.ToLower(d[i].Subject)] = append(m["subject"][strings.ToLower(d[i].Subject)], d[i])
+		m["description"][strings.ToLower(d[i].Description)] = append(m["description"][strings.ToLower(d[i].Description)], d[i])
+		m["priority"][strings.ToLower(d[i].Priority)] = append(m["priority"][strings.ToLower(d[i].Priority)], d[i])
+		m["status"][strings.ToLower(d[i].Status)] = append(m["status"][strings.ToLower(d[i].Status)], d[i])
+		m["submitter_id"][fmt.Sprintf("%d", d[i].SubmitterID)] = append(m["submitter_id"][fmt.Sprintf("%d", d[i].SubmitterID)], d[i])
+		m["assignee_id"][fmt.Sprintf("%d", d[i].AssigneeID)] = append(m["assignee_id"][fmt.Sprintf("%d", d[i].AssigneeID)], d[i])
+		m["organization_id"][fmt.Sprintf("%d", d[i].OrganizationID)] = append(m["organization_id"][fmt.Sprintf("%d", d[i].OrganizationID)], d[i])
+		for _, tag := range d[i].Tags {
+			m["tags"][strings.ToLower(tag)] = append(m["tags"][strings.ToLower(tag)], d[i])
 		}
-		d.TicketIdx["has_incidents"][strconv.FormatBool(d.Tickets[i].HasIncidents)] = append(d.TicketIdx["has_incidents"][strconv.FormatBool(d.Tickets[i].HasIncidents)], d.Tickets[i])
-		d.TicketIdx["due_at"][strings.ToLower(d.Tickets[i].DueAt)] = append(d.TicketIdx["due_at"][strings.ToLower(d.Tickets[i].DueAt)], d.Tickets[i])
-		d.TicketIdx["via"][strings.ToLower(d.Tickets[i].Via)] = append(d.TicketIdx["via"][strings.ToLower(d.Tickets[i].Via)], d.Tickets[i])
+		m["has_incidents"][strconv.FormatBool(d[i].HasIncidents)] = append(m["has_incidents"][strconv.FormatBool(d[i].HasIncidents)], d[i])
+		m["due_at"][strings.ToLower(d[i].DueAt)] = append(m["due_at"][strings.ToLower(d[i].DueAt)], d[i])
+		m["via"][strings.ToLower(d[i].Via)] = append(m["via"][strings.ToLower(d[i].Via)], d[i])
 	}
+	return m
 }

@@ -19,44 +19,40 @@ type Organisation struct {
 	Tags          []string `json:"tags"`
 }
 
-// OrganisationIndexes -
-func (d *Data) OrganisationIndexes() {
-	// map[fieldname]map[fieldvalue][]*Organisation
-	d.OrgIdx = make(map[string]map[string][]*Organisation)
-	d.OrgIdx["_id"] = make(map[string][]*Organisation)
-	d.OrgIdx["url"] = make(map[string][]*Organisation)
-	d.OrgIdx["external_id"] = make(map[string][]*Organisation)
-	d.OrgIdx["name"] = make(map[string][]*Organisation)
-	d.OrgIdx["domain_names"] = make(map[string][]*Organisation)
-	d.OrgIdx["created_at"] = make(map[string][]*Organisation)
-	d.OrgIdx["details"] = make(map[string][]*Organisation)
-	d.OrgIdx["shared_tickets"] = make(map[string][]*Organisation)
-	d.OrgIdx["tags"] = make(map[string][]*Organisation)
-	d.Terms["organisations"] = map[string]struct{}{
-		"_id":            struct{}{},
-		"url":            struct{}{},
-		"external_id":    struct{}{},
-		"name":           struct{}{},
-		"domain_names":   struct{}{},
-		"created_at":     struct{}{},
-		"details":        struct{}{},
-		"shared_tickets": struct{}{},
-		"tags":           struct{}{},
-	}
+// ToDTO - TODO
+func (o *Organisation) ToDTO() map[string]string {
+	return nil
+}
 
-	for i := range d.Organisations {
-		d.OrgIdx["_id"][fmt.Sprintf("%d", d.Organisations[i].ID)] = append(d.OrgIdx["_id"][fmt.Sprintf("%d", d.Organisations[i].ID)], d.Organisations[i])
-		d.OrgIdx["url"][strings.ToLower(d.Organisations[i].URL)] = append(d.OrgIdx["url"][strings.ToLower(d.Organisations[i].URL)], d.Organisations[i])
-		d.OrgIdx["external_id"][strings.ToLower(d.Organisations[i].ExternalID)] = append(d.OrgIdx["external_id"][strings.ToLower(d.Organisations[i].ExternalID)], d.Organisations[i])
-		d.OrgIdx["name"][strings.ToLower(d.Organisations[i].Name)] = append(d.OrgIdx["name"][strings.ToLower(d.Organisations[i].Name)], d.Organisations[i])
-		for _, domainName := range d.Organisations[i].DomainNames {
-			d.OrgIdx["domain_names"][strings.ToLower(domainName)] = append(d.OrgIdx["domain_names"][strings.ToLower(domainName)], d.Organisations[i])
+// CreateIndex -
+func (o *Organisation) CreateIndex(in interface{}, name string) map[string]map[string][]item {
+	d := in.([]*Organisation)
+	// map[fieldname]map[fieldvalue][]*Organisation
+	m := make(map[string]map[string][]item)
+	m["_id"] = make(map[string][]item)
+	m["url"] = make(map[string][]item)
+	m["external_id"] = make(map[string][]item)
+	m["name"] = make(map[string][]item)
+	m["domain_names"] = make(map[string][]item)
+	m["created_at"] = make(map[string][]item)
+	m["details"] = make(map[string][]item)
+	m["shared_tickets"] = make(map[string][]item)
+	m["tags"] = make(map[string][]item)
+
+	for i := range d {
+		m["_id"][fmt.Sprintf("%d", d[i].ID)] = append(m["_id"][fmt.Sprintf("%d", d[i].ID)], d[i])
+		m["url"][strings.ToLower(d[i].URL)] = append(m["url"][strings.ToLower(d[i].URL)], d[i])
+		m["external_id"][strings.ToLower(d[i].ExternalID)] = append(m["external_id"][strings.ToLower(d[i].ExternalID)], d[i])
+		m["name"][strings.ToLower(d[i].Name)] = append(m["name"][strings.ToLower(d[i].Name)], d[i])
+		for _, domainName := range d[i].DomainNames {
+			m["domain_names"][strings.ToLower(domainName)] = append(m["domain_names"][strings.ToLower(domainName)], d[i])
 		}
-		d.OrgIdx["created_at"][strings.ToLower(d.Organisations[i].CreatedAt)] = append(d.OrgIdx["created_at"][strings.ToLower(d.Organisations[i].CreatedAt)], d.Organisations[i])
-		d.OrgIdx["details"][strings.ToLower(d.Organisations[i].Details)] = append(d.OrgIdx["details"][strings.ToLower(d.Organisations[i].Details)], d.Organisations[i])
-		d.OrgIdx["shared_tickets"][strconv.FormatBool(d.Organisations[i].SharedTickets)] = append(d.OrgIdx["shared_tickets"][strconv.FormatBool(d.Organisations[i].SharedTickets)], d.Organisations[i])
-		for _, tag := range d.Organisations[i].Tags {
-			d.OrgIdx["tags"][strings.ToLower(tag)] = append(d.OrgIdx["tags"][strings.ToLower(tag)], d.Organisations[i])
+		m["created_at"][strings.ToLower(d[i].CreatedAt)] = append(m["created_at"][strings.ToLower(d[i].CreatedAt)], d[i])
+		m["details"][strings.ToLower(d[i].Details)] = append(m["details"][strings.ToLower(d[i].Details)], d[i])
+		m["shared_tickets"][strconv.FormatBool(d[i].SharedTickets)] = append(m["shared_tickets"][strconv.FormatBool(d[i].SharedTickets)], d[i])
+		for _, tag := range d[i].Tags {
+			m["tags"][strings.ToLower(tag)] = append(m["tags"][strings.ToLower(tag)], d[i])
 		}
 	}
+	return m
 }
