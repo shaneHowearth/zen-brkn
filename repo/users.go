@@ -30,19 +30,34 @@ type User struct {
 }
 
 // ToDTO - TODO
-func (u *User) ToDTO() map[string]string {
-	return nil
+func (u *User) ToDTO() map[string][]string {
+	m := map[string][]string{}
+	m["_id"] = []string{fmt.Sprintf("%d", u.ID)}
+	m["url"] = []string{u.URL}
+	m["external_id"] = []string{u.ExternalID}
+	m["name"] = []string{u.Name}
+	m["alias"] = []string{u.Alias}
+	m["created_at"] = []string{u.CreatedAt}
+	m["active"] = []string{strconv.FormatBool(u.Active)}
+	m["verified"] = []string{strconv.FormatBool(u.Verified)}
+	m["shared"] = []string{strconv.FormatBool(u.Shared)}
+	m["locale"] = []string{u.Locale}
+	m["timezone"] = []string{u.Timezone}
+	m["last_login_at"] = []string{u.LastLoginAt}
+	m["email"] = []string{u.Email}
+	m["phone"] = []string{u.Phone}
+	m["signature"] = []string{u.Signature}
+	m["organization_id"] = []string{fmt.Sprintf("%d", u.OrganizationID)}
+	m["tags"] = u.Tags
+	m["suspended"] = []string{strconv.FormatBool(u.Suspended)}
+	m["role"] = []string{u.Role}
+	return m
 }
 
 // CreateIndex -
 func (u *User) CreateIndex(in interface{}, name string) map[string]map[string][]item {
 	d := in.([]*User)
-	// map[fieldname]map[fieldvalue][]*Organisation
 	m := make(map[string]map[string][]item)
-	// UserIndexes -
-	// func (d *Data) UserIndexes() {
-	// map[fieldname]map[fieldvalue][]*User
-	// d.UserIdx = make(map[string]map[string][]*User)
 	m["_id"] = make(map[string][]item)
 	m["url"] = make(map[string][]item)
 	m["external_id"] = make(map[string][]item)

@@ -20,8 +20,18 @@ type Organisation struct {
 }
 
 // ToDTO - TODO
-func (o *Organisation) ToDTO() map[string]string {
-	return nil
+func (o *Organisation) ToDTO() map[string][]string {
+	m := map[string][]string{}
+	m["_id"] = []string{fmt.Sprintf("%d", o.ID)}
+	m["url"] = []string{o.URL}
+	m["external_id"] = []string{o.ExternalID}
+	m["name"] = []string{o.Name}
+	m["domain_names"] = o.DomainNames
+	m["created_at"] = []string{o.CreatedAt}
+	m["details"] = []string{o.Details}
+	m["shared_tickets"] = []string{strconv.FormatBool(o.SharedTickets)}
+	m["tags"] = o.Tags
+	return m
 }
 
 // CreateIndex -

@@ -10,7 +10,7 @@ import (
 
 // item - all Data types must implement this interface
 type item interface {
-	ToDTO() map[string]string
+	ToDTO() map[string][]string
 	CreateIndex(interface{}, string) map[string]map[string][]item
 }
 
@@ -20,7 +20,7 @@ type Data struct {
 	Groups []string
 	Terms  map[string]map[string]struct{}
 
-	Data    map[string][]map[string]string          // map[data group][]map[fieldname]field value
+	Data    map[string][]map[string][]string        // map[data group][]map[fieldname]field value
 	Indexes map[string]map[string]map[string][]item // map[data group name]map[field name]map[field value][]item
 }
 

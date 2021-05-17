@@ -27,8 +27,26 @@ type Ticket struct {
 }
 
 // ToDTO - TODO
-func (t *Ticket) ToDTO() map[string]string {
-	return nil
+func (t *Ticket) ToDTO() map[string][]string {
+	m := map[string][]string{}
+	m["_id"] = []string{t.ID}
+	m["url"] = []string{t.URL}
+	m["external_id"] = []string{t.ExternalID}
+	m["created_at"] = []string{t.CreatedAt}
+	m["type"] = []string{t.Type}
+	m["subject"] = []string{t.Subject}
+	m["description"] = []string{t.Description}
+	m["priority"] = []string{t.Priority}
+	m["status"] = []string{t.Status}
+	m["submitter_id"] = []string{fmt.Sprintf("%d", t.SubmitterID)}
+	m["assignee_id"] = []string{fmt.Sprintf("%d", t.AssigneeID)}
+	m["organization_id"] = []string{fmt.Sprintf("%d", t.OrganizationID)}
+	m["tags"] = t.Tags
+	m["has_incidents"] = []string{strconv.FormatBool(t.HasIncidents)}
+	m["due_at"] = []string{t.DueAt}
+	m["via"] = []string{t.Via}
+
+	return m
 }
 
 // CreateIndex -
