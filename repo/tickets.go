@@ -30,40 +30,58 @@ type Ticket struct {
 func (d *Data) TicketIndexes() {
 	// map[fieldname]map[fieldvalue][]*Ticket
 	d.TicketIdx = make(map[string]map[string][]*Ticket)
-	d.TicketIdx["ID"] = make(map[string][]*Ticket)
-	d.TicketIdx["URL"] = make(map[string][]*Ticket)
-	d.TicketIdx["ExternalID"] = make(map[string][]*Ticket)
-	d.TicketIdx["CreatedAt"] = make(map[string][]*Ticket)
-	d.TicketIdx["Type"] = make(map[string][]*Ticket)
-	d.TicketIdx["Subject"] = make(map[string][]*Ticket)
-	d.TicketIdx["Description"] = make(map[string][]*Ticket)
-	d.TicketIdx["Priority"] = make(map[string][]*Ticket)
-	d.TicketIdx["Status"] = make(map[string][]*Ticket)
-	d.TicketIdx["SubmitterID"] = make(map[string][]*Ticket)
-	d.TicketIdx["AssigneeID"] = make(map[string][]*Ticket)
-	d.TicketIdx["OrganizationID"] = make(map[string][]*Ticket)
-	d.TicketIdx["Tags"] = make(map[string][]*Ticket)
-	d.TicketIdx["HasIncidents"] = make(map[string][]*Ticket)
-	d.TicketIdx["DueAt"] = make(map[string][]*Ticket)
-	d.TicketIdx["Via"] = make(map[string][]*Ticket)
+	d.TicketIdx["_id"] = make(map[string][]*Ticket)
+	d.TicketIdx["url"] = make(map[string][]*Ticket)
+	d.TicketIdx["external_id"] = make(map[string][]*Ticket)
+	d.TicketIdx["created_at"] = make(map[string][]*Ticket)
+	d.TicketIdx["type"] = make(map[string][]*Ticket)
+	d.TicketIdx["subject"] = make(map[string][]*Ticket)
+	d.TicketIdx["description"] = make(map[string][]*Ticket)
+	d.TicketIdx["priority"] = make(map[string][]*Ticket)
+	d.TicketIdx["status"] = make(map[string][]*Ticket)
+	d.TicketIdx["submitter_id"] = make(map[string][]*Ticket)
+	d.TicketIdx["assignee_id"] = make(map[string][]*Ticket)
+	d.TicketIdx["organization_id"] = make(map[string][]*Ticket)
+	d.TicketIdx["tags"] = make(map[string][]*Ticket)
+	d.TicketIdx["has_incidents"] = make(map[string][]*Ticket)
+	d.TicketIdx["due_at"] = make(map[string][]*Ticket)
+	d.TicketIdx["via"] = make(map[string][]*Ticket)
+	d.Terms["tickets"] = map[string]struct{}{
+		"_id":             struct{}{},
+		"url":             struct{}{},
+		"external_id":     struct{}{},
+		"created_at":      struct{}{},
+		"type":            struct{}{},
+		"subject":         struct{}{},
+		"description":     struct{}{},
+		"priority":        struct{}{},
+		"status":          struct{}{},
+		"submitter_id":    struct{}{},
+		"assignee_id":     struct{}{},
+		"organization_id": struct{}{},
+		"tags":            struct{}{},
+		"has_incidents":   struct{}{},
+		"due_at":          struct{}{},
+		"via":             struct{}{},
+	}
 	for i := range d.Tickets {
-		d.TicketIdx["ID"][strings.ToLower(d.Tickets[i].ID)] = append(d.TicketIdx["ID"][strings.ToLower(d.Tickets[i].ID)], d.Tickets[i])
-		d.TicketIdx["URL"][strings.ToLower(d.Tickets[i].URL)] = append(d.TicketIdx["URL"][strings.ToLower(d.Tickets[i].URL)], d.Tickets[i])
-		d.TicketIdx["ExternalID"][strings.ToLower(d.Tickets[i].ExternalID)] = append(d.TicketIdx["ExternalID"][strings.ToLower(d.Tickets[i].ExternalID)], d.Tickets[i])
-		d.TicketIdx["CreatedAt"][strings.ToLower(d.Tickets[i].CreatedAt)] = append(d.TicketIdx["CreatedAt"][strings.ToLower(d.Tickets[i].CreatedAt)], d.Tickets[i])
-		d.TicketIdx["Type"][strings.ToLower(d.Tickets[i].Type)] = append(d.TicketIdx["Type"][strings.ToLower(d.Tickets[i].Type)], d.Tickets[i])
-		d.TicketIdx["Subject"][strings.ToLower(d.Tickets[i].Subject)] = append(d.TicketIdx["Subject"][strings.ToLower(d.Tickets[i].Subject)], d.Tickets[i])
-		d.TicketIdx["Description"][strings.ToLower(d.Tickets[i].Description)] = append(d.TicketIdx["Description"][strings.ToLower(d.Tickets[i].Description)], d.Tickets[i])
-		d.TicketIdx["Priority"][strings.ToLower(d.Tickets[i].Priority)] = append(d.TicketIdx["Priority"][strings.ToLower(d.Tickets[i].Priority)], d.Tickets[i])
-		d.TicketIdx["Status"][strings.ToLower(d.Tickets[i].Status)] = append(d.TicketIdx["Status"][strings.ToLower(d.Tickets[i].Status)], d.Tickets[i])
-		d.TicketIdx["SubmitterID"][fmt.Sprintf("%d", d.Tickets[i].SubmitterID)] = append(d.TicketIdx["SubmitterID"][fmt.Sprintf("%d", d.Tickets[i].SubmitterID)], d.Tickets[i])
-		d.TicketIdx["AssigneeID"][fmt.Sprintf("%d", d.Tickets[i].AssigneeID)] = append(d.TicketIdx["AssigneeID"][fmt.Sprintf("%d", d.Tickets[i].AssigneeID)], d.Tickets[i])
-		d.TicketIdx["OrganizationID"][fmt.Sprintf("%d", d.Tickets[i].OrganizationID)] = append(d.TicketIdx["OrganizationID"][fmt.Sprintf("%d", d.Tickets[i].OrganizationID)], d.Tickets[i])
+		d.TicketIdx["_id"][strings.ToLower(d.Tickets[i].ID)] = append(d.TicketIdx["_id"][strings.ToLower(d.Tickets[i].ID)], d.Tickets[i])
+		d.TicketIdx["url"][strings.ToLower(d.Tickets[i].URL)] = append(d.TicketIdx["url"][strings.ToLower(d.Tickets[i].URL)], d.Tickets[i])
+		d.TicketIdx["external_id"][strings.ToLower(d.Tickets[i].ExternalID)] = append(d.TicketIdx["external_id"][strings.ToLower(d.Tickets[i].ExternalID)], d.Tickets[i])
+		d.TicketIdx["created_at"][strings.ToLower(d.Tickets[i].CreatedAt)] = append(d.TicketIdx["created_at"][strings.ToLower(d.Tickets[i].CreatedAt)], d.Tickets[i])
+		d.TicketIdx["type"][strings.ToLower(d.Tickets[i].Type)] = append(d.TicketIdx["type"][strings.ToLower(d.Tickets[i].Type)], d.Tickets[i])
+		d.TicketIdx["subject"][strings.ToLower(d.Tickets[i].Subject)] = append(d.TicketIdx["subject"][strings.ToLower(d.Tickets[i].Subject)], d.Tickets[i])
+		d.TicketIdx["description"][strings.ToLower(d.Tickets[i].Description)] = append(d.TicketIdx["description"][strings.ToLower(d.Tickets[i].Description)], d.Tickets[i])
+		d.TicketIdx["priority"][strings.ToLower(d.Tickets[i].Priority)] = append(d.TicketIdx["priority"][strings.ToLower(d.Tickets[i].Priority)], d.Tickets[i])
+		d.TicketIdx["status"][strings.ToLower(d.Tickets[i].Status)] = append(d.TicketIdx["status"][strings.ToLower(d.Tickets[i].Status)], d.Tickets[i])
+		d.TicketIdx["submitter_id"][fmt.Sprintf("%d", d.Tickets[i].SubmitterID)] = append(d.TicketIdx["submitter_id"][fmt.Sprintf("%d", d.Tickets[i].SubmitterID)], d.Tickets[i])
+		d.TicketIdx["assignee_id"][fmt.Sprintf("%d", d.Tickets[i].AssigneeID)] = append(d.TicketIdx["assignee_id"][fmt.Sprintf("%d", d.Tickets[i].AssigneeID)], d.Tickets[i])
+		d.TicketIdx["organization_id"][fmt.Sprintf("%d", d.Tickets[i].OrganizationID)] = append(d.TicketIdx["organization_id"][fmt.Sprintf("%d", d.Tickets[i].OrganizationID)], d.Tickets[i])
 		for _, tag := range d.Tickets[i].Tags {
-			d.TicketIdx["Tags"][strings.ToLower(tag)] = append(d.TicketIdx["Tags"][strings.ToLower(tag)], d.Tickets[i])
+			d.TicketIdx["tags"][strings.ToLower(tag)] = append(d.TicketIdx["tags"][strings.ToLower(tag)], d.Tickets[i])
 		}
-		d.TicketIdx["HasIncidents"][strconv.FormatBool(d.Tickets[i].HasIncidents)] = append(d.TicketIdx["HasIncidents"][strconv.FormatBool(d.Tickets[i].HasIncidents)], d.Tickets[i])
-		d.TicketIdx["DueAt"][strings.ToLower(d.Tickets[i].DueAt)] = append(d.TicketIdx["DueAt"][strings.ToLower(d.Tickets[i].DueAt)], d.Tickets[i])
-		d.TicketIdx["Via"][strings.ToLower(d.Tickets[i].Via)] = append(d.TicketIdx["Via"][strings.ToLower(d.Tickets[i].Via)], d.Tickets[i])
+		d.TicketIdx["has_incidents"][strconv.FormatBool(d.Tickets[i].HasIncidents)] = append(d.TicketIdx["has_incidents"][strconv.FormatBool(d.Tickets[i].HasIncidents)], d.Tickets[i])
+		d.TicketIdx["due_at"][strings.ToLower(d.Tickets[i].DueAt)] = append(d.TicketIdx["due_at"][strings.ToLower(d.Tickets[i].DueAt)], d.Tickets[i])
+		d.TicketIdx["via"][strings.ToLower(d.Tickets[i].Via)] = append(d.TicketIdx["via"][strings.ToLower(d.Tickets[i].Via)], d.Tickets[i])
 	}
 }

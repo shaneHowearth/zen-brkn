@@ -8,14 +8,25 @@ import (
 	"path/filepath"
 )
 
+// store - all Data types must implement this interface
+type store interface {
+	ToDTO() (map[string]string, error)
+}
+
 // Data -
 type Data struct {
+	// Book keeping
+	Groups  []string
+	Terms   map[string]map[string]struct{}
+	Indexes map[string]string
+	// Data
 	Organisations []*Organisation
 	Users         []*User
 	Tickets       []*Ticket
-	OrgIdx        map[string]map[string][]*Organisation // map[fieldname]map[fieldvalue][]*Organisation
-	UserIdx       map[string]map[string][]*User         // map[fieldname]map[fieldvalue][]*User
-	TicketIdx     map[string]map[string][]*Ticket       // map[fieldname]map[fieldvalue][]*Ticket
+	// Indexes
+	OrgIdx    map[string]map[string][]*Organisation // map[fieldname]map[fieldvalue][]*Organisation
+	UserIdx   map[string]map[string][]*User         // map[fieldname]map[fieldvalue][]*User
+	TicketIdx map[string]map[string][]*Ticket       // map[fieldname]map[fieldvalue][]*Ticket
 }
 
 // Make os.Stat changeable for testing.
@@ -56,7 +67,7 @@ var jsonUnmarshal = json.Unmarshal
 // LoadJSON -
 func (d *Data) LoadJSON() error {
 	files := []struct {
-		name      string
+		filename  string
 		container interface{}
 	}{
 		{"data/tickets.json", &d.Tickets},
@@ -65,22 +76,24 @@ func (d *Data) LoadJSON() error {
 	}
 
 	for i := range files {
-		p := filepath.FromSlash(files[i].name)
+		p := filepath.FromSlash(files[i].filename)
 
 		// load the file into memory
 		data, err := d.loadFile(p)
 		if err != nil {
-			return fmt.Errorf("%s loaddata error %w", files[i].name, err)
+			return fmt.Errorf("%s loaddata error %w", files[i].filename, err)
 		}
 
 		// extract the json from the file and load it into structs
 		err = jsonUnmarshal(data, files[i].container)
 		if err != nil {
-			return fmt.Errorf("%s unmarshal error %w", files[i].name, err)
+			return fmt.Errorf("%s unmarshal error %w", files[i].filename, err)
 		}
 	}
 
 	// Create indexes
+	// Note: The list of terms needs to be added to as part of the index
+	// creation
 	d.TicketIndexes()
 	d.OrganisationIndexes()
 	d.UserIndexes()
