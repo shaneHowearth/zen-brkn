@@ -4,15 +4,14 @@ package repo
 // is, if the data is stored as a BST then search operations are going to be
 // different than search in a Off the shelf datastore like Redis or MongoDB, or
 // even, the search of a B+ tree.
-import "fmt"
 
 // FindMatches -
-func (d *Data) FindMatches(group, term, value string) ([]map[string]string, error) {
-	return nil, fmt.Errorf("%s does not have an index", group)
-}
-
-func (d Data) ToDTO(interface{}) ([]map[string]string, error) {
-	return nil, nil
+func (d *Data) FindMatches(group, term, value string) ([]map[string][]string, error) {
+	matches := []map[string][]string{}
+	for i := range d.Indexes[group][term][value] {
+		matches = append(matches, d.Indexes[group][term][value][i].ToDTO())
+	}
+	return matches, nil
 }
 
 // FindRelated -
