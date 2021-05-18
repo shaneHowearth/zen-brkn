@@ -29,7 +29,7 @@ type Data struct {
 var osStat = os.Stat
 
 // Check file exists, and we have permissons to access it.
-func (d Data) fileExists(filepath string) error {
+func (d *Data) fileExists(filepath string) error {
 	if _, err := osStat(filepath); err == nil {
 		return nil
 	} else if os.IsNotExist(err) {
@@ -45,7 +45,7 @@ func (d Data) fileExists(filepath string) error {
 var osReadFile = os.ReadFile
 
 // Read file contents into memory.
-func (d Data) loadFile(filepath string) ([]byte, error) {
+func (d *Data) loadFile(filepath string) ([]byte, error) {
 	if err := d.fileExists(filepath); err != nil {
 		return nil, fmt.Errorf("unable to load file with error %w", err)
 	}
