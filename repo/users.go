@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+var _ item = (*User)(nil)
+
 // User -
 type User struct {
 	ID             int      `json:"_id"`
@@ -55,6 +57,8 @@ func (u *User) ToDTO() map[string][]string {
 }
 
 // CreateIndex -
+// Ignore "returns unexported type" linter complaint
+// nolint:golint
 func (u *User) CreateIndex(in interface{}, name string) map[string]map[string][]item {
 	d := in.([]*User)
 	m := make(map[string]map[string][]item)

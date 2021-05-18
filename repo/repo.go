@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
 )
 
 // item - all Data types must implement this interface
@@ -74,6 +75,9 @@ func (d *Data) LoadJSON() error {
 		{"organisation", "data/organizations.json", &organisations},
 	}
 
+	d.Data = map[string][]map[string][]string{}
+	d.Indexes = map[string]map[string]map[string][]item{}
+	d.Terms = map[string]map[string]struct{}{}
 	for i := range files {
 		p := filepath.FromSlash(files[i].filename)
 
@@ -90,13 +94,17 @@ func (d *Data) LoadJSON() error {
 		}
 
 		// Convert the container into a DTO
-		for j := range files[i].container.([]item) {
-			d.Data[files[i].name] = append(d.Data[files[i].name], files[i].container.([]item)[j].ToDTO())
+		list := reflect.ValueOf(files[i].container)
+		for j := 0; j < reflect.Indirect(list).Len(); j++ {
+			if _, ok := d.Data[files[i].name]; !ok {
+				d.Data[files[i].name] = []map[string][]string{}
+			}
+			d.Data[files[i].name] = append(d.Data[files[i].name], reflect.Indirect(list).Index(j).Interface().(item).ToDTO())
 		}
 
 		// Create Index for this group
-		if len(files[i].container.([]item)) >= 1 {
-			d.Indexes[files[i].name] = files[i].container.([]item)[0].CreateIndex(d, files[i].name)
+		if reflect.Indirect(list).Len() >= 1 {
+			d.Indexes[files[i].name] = reflect.Indirect(list).Index(0).Interface().(item).CreateIndex(reflect.Indirect(list).Interface(), files[i].name)
 			d.Terms[files[i].name] = map[string]struct{}{}
 			for k := range d.Indexes[files[i].name] {
 				d.Terms[files[i].name][k] = struct{}{}

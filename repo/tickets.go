@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+var _ item = (*Ticket)(nil)
+
 // Ticket -
 type Ticket struct {
 	ID             string   `json:"_id"`
@@ -50,6 +52,8 @@ func (t *Ticket) ToDTO() map[string][]string {
 }
 
 // CreateIndex -
+// Ignore "returns unexported type" linter complaint
+// nolint:golint
 func (t *Ticket) CreateIndex(in interface{}, name string) map[string]map[string][]item {
 	d := in.([]*Ticket)
 	// TicketIndexes -
