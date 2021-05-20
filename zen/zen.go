@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"sort"
 	"strconv"
 )
 
@@ -49,13 +50,14 @@ type Data interface {
 
 // UI -
 type UI interface {
-	WelcomeMenu()
+	WelcomeMenu() (string, error)
 	DataMenu([]string)
 	GetCommand() (string, error)
 	GroupQuestion() (string, error)
 	TermQuestion() (string, error)
 	ValueQuestion() (string, error)
 	ShowResults([]map[string][]map[string][]string)
+	ShowTerms(map[string][]string)
 	ShowError(string)
 }
 
@@ -129,37 +131,72 @@ const MaxTries = 3
 func (b *brain) Forever() {
 	b.Data.Initialise()
 	for {
-		b.UI.WelcomeMenu()
-		groups, err := b.Data.GetGroups()
+		option, err := b.UI.WelcomeMenu()
 		if err != nil {
-			fmt.Printf("Data Get Groups error %v\n", err)
+			b.UI.ShowError(fmt.Sprintf("Data Get Groups error %v\n", err))
 		}
-		b.UI.DataMenu(groups)
-		group, err := b.getGroup(MaxTries)
-		if err != nil {
-			log.Fatal(err)
-		}
-		term, err := b.getTerm(MaxTries, group)
-		if err != nil {
-			log.Fatal(err)
-		}
-		value, err := b.getValue(MaxTries, group, term)
-		if err != nil {
-			log.Fatal(err)
-		}
+		if option == "1" {
+			// Search for tickets
+			b.searchTickets()
 
-		matches, _ := b.Data.FindMatches(group, term, value)
-		found := make([]map[string][]map[string][]string, len(matches)+1)
-		found[0] = map[string][]map[string][]string{}
-		found[0]["matches"] = []map[string][]string{}
-		found[0]["matches"] = append(found[0]["matches"], matches...)
-		for idx := range matches {
-			d, _ := b.Data.FindRelated(group, matches[idx])
-			for k := range d {
-				found[idx][k] = d[k]
-			}
+		} else if option == "2" {
+			// Show all of the terms
+			b.showTerms()
+		} else {
+			b.UI.ShowError("Valid options are '1' or '2', please try again.")
 		}
-		b.UI.ShowResults(found)
 
 	}
+}
+func (b *brain) showTerms() {
+	groups, err := b.Data.GetGroups()
+	if err != nil {
+		b.UI.ShowError(fmt.Sprintf("Data Get Groups error %v\n", err))
+	}
+	found := map[string][]string{}
+	for _, group := range groups {
+		g, err := b.Data.GetTerms(group) // map[string]struct{}
+		if err != nil {
+			b.UI.ShowError(fmt.Sprintf("Data Get Groups error %v\n", err))
+		}
+		found[group] = []string{}
+		for k := range g {
+			found[group] = append(found[group], k)
+		}
+		sort.Strings(found[group])
+	}
+	b.UI.ShowTerms(found)
+}
+
+func (b *brain) searchTickets() {
+	groups, err := b.Data.GetGroups()
+	if err != nil {
+		b.UI.ShowError(fmt.Sprintf("Data Get Groups error %v\n", err))
+	}
+	b.UI.DataMenu(groups)
+	group, err := b.getGroup(MaxTries)
+	if err != nil {
+		log.Fatal(err)
+	}
+	term, err := b.getTerm(MaxTries, group)
+	if err != nil {
+		log.Fatal(err)
+	}
+	value, err := b.getValue(MaxTries, group, term)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	matches, _ := b.Data.FindMatches(group, term, value)
+	found := make([]map[string][]map[string][]string, len(matches)+1)
+	found[0] = map[string][]map[string][]string{}
+	found[0]["matches"] = []map[string][]string{}
+	found[0]["matches"] = append(found[0]["matches"], matches...)
+	for idx := range matches {
+		d, _ := b.Data.FindRelated(group, matches[idx])
+		for k := range d {
+			found[idx][k] = d[k]
+		}
+	}
+	b.UI.ShowResults(found)
 }

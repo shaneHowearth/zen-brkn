@@ -8,7 +8,11 @@ import (
 	"strings"
 	"sync"
 	"text/tabwriter"
+
+	"github.com/shanehowearth/zen/zen"
 )
+
+var _ zen.UI = (*CLI)(nil)
 
 // CLI -
 type CLI struct {
@@ -39,7 +43,7 @@ func (c *CLI) toScreen(s []string) {
 }
 
 // WelcomeMenu -
-func (c *CLI) WelcomeMenu() {
+func (c *CLI) WelcomeMenu() (string, error) {
 	c.toScreen([]string{`Welcome to Zendesk Search
 Type 'quit' to exit at any time, Press 'Enter' to continue
 
@@ -51,6 +55,7 @@ Type 'quit' to exit at any time, Press 'Enter' to continue
 	 * Type 'quit' or 'q' to exit
 
 `})
+	return c.GetCommand()
 }
 
 // DataMenu -
@@ -79,6 +84,19 @@ func (c *CLI) GroupQuestion() (string, error) {
 func (c *CLI) ValueQuestion() (string, error) {
 	c.toScreen([]string{"Enter search value"})
 	return c.GetCommand()
+}
+
+// ShowTerms -
+func (c *CLI) ShowTerms(t map[string][]string) {
+	for k := range t {
+		c.toScreen([]string{"----------------------------------------------------\n"})
+		c.toScreen([]string{k})
+		ts := make([]string, len(t[k]))
+		for i := range t[k] {
+			ts[i] = t[k][i] + "\n"
+		}
+		c.toScreen(ts)
+	}
 }
 
 // ShowResults -
