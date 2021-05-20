@@ -20,6 +20,14 @@ type CLI struct {
 	w *tabwriter.Writer
 }
 
+var (
+	bold          = "\033[1m"
+	italic        = "\033[3m"
+	underline     = "\033[4m"
+	strikethrough = "\033[9m"
+	end           = "\033[0m"
+)
+
 // make os.Stdout changeable for tests.
 var osStdout = os.Stdout
 
@@ -60,8 +68,7 @@ Type 'quit' to exit at any time, Press 'Enter' to continue
 
 // DataMenu -
 func (c *CLI) DataMenu(groups []string) {
-	// menu := "Select 1) Users or 2) Tickets or 3) Organizations"
-	menu := fmt.Sprintf("Select 1) %s", groups[0])
+	menu := "Select 1) " + strings.Title(strings.ToLower(groups[0]))
 	for i := 2; i <= len(groups); i++ {
 		menu += fmt.Sprintf(" or %d) %s", i, strings.Title(strings.ToLower(groups[i-1])))
 	}
@@ -90,7 +97,7 @@ func (c *CLI) ValueQuestion() (string, error) {
 func (c *CLI) ShowTerms(t map[string][]string) {
 	for k := range t {
 		c.toScreen([]string{"----------------------------------------------------\n"})
-		c.toScreen([]string{k})
+		c.toScreen([]string{bold + underline + k + end + "\n"})
 		ts := make([]string, len(t[k]))
 		for i := range t[k] {
 			ts[i] = t[k][i] + "\n"
@@ -105,7 +112,7 @@ func (c *CLI) ShowResults(results []map[string][]map[string][]string) {
 		c.toScreen([]string{"----------------------------------------------------\n"})
 		d := []string{}
 		for k := range results[i] {
-			d = append(d, fmt.Sprintf("%s\n", k))
+			d = append(d, bold+underline+k+end+"\n")
 			for j := range results[i][k] {
 				for jk, jv := range results[i][k][j] {
 					d = append(d, fmt.Sprintf("%s\t\t\t%s\n", jk, strings.NewReplacer("[", "", "]", "").Replace(fmt.Sprintf("%v", jv))))
@@ -125,7 +132,7 @@ func (c *CLI) ShowError(s string) {
 // GetCommand -
 func (c *CLI) GetCommand() (string, error) {
 	// Prompt
-	c.toScreen([]string{"> "})
+	c.toScreen([]string{bold + " > " + end})
 
 	reader := bufio.NewReader(os.Stdin)
 	cmdString, err := reader.ReadString('\n')

@@ -3,10 +3,11 @@ package zen
 
 import (
 	"fmt"
-	"log"
+	"os"
 	"reflect"
 	"sort"
 	"strconv"
+	"strings"
 )
 
 type brain struct {
@@ -68,14 +69,14 @@ func (b *brain) getGroup(maxTries int) (string, error) {
 	for {
 		if i >= maxTries {
 			b.UI.ShowError("Too many attempts, sorry.")
-			return "", fmt.Errorf("too many attempts")
+			b.Shutdown()
 		}
 		group, err := b.UI.GroupQuestion()
 		if err != nil {
 			return "", fmt.Errorf("search group question error %w", err)
 		}
 		if group == "q" || group == "quit" {
-			return "", fmt.Errorf("quit signal")
+			b.Shutdown()
 		}
 		groupNum, err = strconv.Atoi(group)
 		if err != nil || groupNum < 1 || groupNum > len(groups) {
@@ -92,6 +93,7 @@ func (b *brain) getTerm(maxTries int, group string) (string, error) {
 	terms, err := b.Data.GetTerms(group)
 	if err != nil {
 		// Group doesn't exist - how did /that/ happen?
+		b.Shutdown()
 	}
 	i := 0
 	termName := ""
@@ -142,12 +144,20 @@ func (b *brain) Forever() {
 		} else if option == "2" {
 			// Show all of the terms
 			b.showTerms()
+		} else if strings.ToLower(option) == "q" || strings.ToLower(option) == "quit" {
+			b.Shutdown()
 		} else {
 			b.UI.ShowError("Valid options are '1' or '2', please try again.")
 		}
 
 	}
 }
+
+// Shudown -
+func (b *brain) Shutdown() {
+	os.Exit(0)
+}
+
 func (b *brain) showTerms() {
 	groups, err := b.Data.GetGroups()
 	if err != nil {
@@ -157,7 +167,7 @@ func (b *brain) showTerms() {
 	for _, group := range groups {
 		g, err := b.Data.GetTerms(group) // map[string]struct{}
 		if err != nil {
-			b.UI.ShowError(fmt.Sprintf("Data Get Groups error %v\n", err))
+			b.UI.ShowError(fmt.Sprintf("Data Get Terms error %v\n", err))
 		}
 		found[group] = []string{}
 		for k := range g {
@@ -176,15 +186,18 @@ func (b *brain) searchTickets() {
 	b.UI.DataMenu(groups)
 	group, err := b.getGroup(MaxTries)
 	if err != nil {
-		log.Fatal(err)
+		// log.Print(err)
+		b.Shutdown()
 	}
 	term, err := b.getTerm(MaxTries, group)
 	if err != nil {
-		log.Fatal(err)
+		// log.Print(err)
+		b.Shutdown()
 	}
 	value, err := b.getValue(MaxTries, group, term)
 	if err != nil {
-		log.Fatal(err)
+		// log.Fatal(err)
+		b.Shutdown()
 	}
 
 	matches, _ := b.Data.FindMatches(group, term, value)
