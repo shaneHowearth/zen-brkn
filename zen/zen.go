@@ -3,6 +3,7 @@ package zen
 
 import (
 	"fmt"
+	"log"
 	"reflect"
 	"strconv"
 )
@@ -39,26 +40,27 @@ func NewBrain(data Data, ui UI) (*brain, error) {
 
 // Data -
 type Data interface {
-	FindMatches(group, term, value string) ([]map[string]string, error)
-	FindRelated(map[string]string) ([]map[string]string, error)
+	Initialise()
+	FindMatches(group, term, value string) ([]map[string][]string, error)
+	FindRelated(string, map[string][]string) (map[string][]map[string][]string, error) // map[group][]map[fieldname][][values]
 	GetGroups() ([]string, error)
 	GetTerms(string) (map[string]struct{}, error)
 }
 
 // UI -
 type UI interface {
-	WelcomeMenu() string
-	DataMenu() string
+	WelcomeMenu()
+	DataMenu([]string)
 	GetCommand() (string, error)
-	ShowGroupQuestion() error
-	ShowTermQuestion() error
-	ShowValueQuestion() error
-	ShowResults([]map[string]string)
+	GroupQuestion() (string, error)
+	TermQuestion() (string, error)
+	ValueQuestion() (string, error)
+	ShowResults([]map[string][]map[string][]string)
 	ShowError(string)
 }
 
 func (b *brain) getGroup(maxTries int) (string, error) {
-	groups := b.Data.GetGroups()
+	groups, _ := b.Data.GetGroups()
 	groupNum := 0
 	i := 0
 	for {
@@ -66,19 +68,15 @@ func (b *brain) getGroup(maxTries int) (string, error) {
 			b.UI.ShowError("Too many attempts, sorry.")
 			return "", fmt.Errorf("too many attempts")
 		}
-		if err := b.UI.ShowGroupQuestion(); err != nil {
-			return "", fmt.Errorf("search group question error %w", err)
-		}
-		group, err := b.UI.GetCommand()
+		group, err := b.UI.GroupQuestion()
 		if err != nil {
-			b.UI.ShowError("Error getting input, cannot continue.")
-			return "", fmt.Errorf("input error %w", err)
+			return "", fmt.Errorf("search group question error %w", err)
 		}
 		if group == "q" || group == "quit" {
 			return "", fmt.Errorf("quit signal")
 		}
 		groupNum, err = strconv.Atoi(group)
-		if err != nil || groupNum <= 1 || groupNum > len(groups) {
+		if err != nil || groupNum < 1 || groupNum > len(groups) {
 			b.UI.ShowError(fmt.Sprintf("Invalid selection, please choose between 1 and %d, or 'quit' at any time.", len(groups)))
 			i++
 			continue
@@ -100,13 +98,9 @@ func (b *brain) getTerm(maxTries int, group string) (string, error) {
 			b.UI.ShowError("Too many attempts, sorry.")
 			return "", fmt.Errorf("too many attempts")
 		}
-		if err = b.UI.ShowTermQuestion(); err != nil {
-			return "", fmt.Errorf("search term question error %w", err)
-		}
-		termName, err = b.UI.GetCommand()
+		termName, err = b.UI.TermQuestion()
 		if err != nil {
-			b.UI.ShowError("Error getting input, cannot continue.")
-			return "", fmt.Errorf("input error %w", err)
+			return "", fmt.Errorf("search term question error %w", err)
 		}
 		if termName == "q" || termName == "quit" {
 			return "", fmt.Errorf("quit signal")
@@ -122,13 +116,9 @@ func (b *brain) getTerm(maxTries int, group string) (string, error) {
 }
 
 func (b *brain) getValue(maxTries int, group, term string) (string, error) {
-	if err := b.UI.ShowValueQuestion(); err != nil {
-		return "", fmt.Errorf("search value question error %w", err)
-	}
-	termValue, err := b.UI.GetCommand()
+	termValue, err := b.UI.ValueQuestion()
 	if err != nil {
-		b.UI.ShowError("Error getting input, cannot continue.")
-		return "", fmt.Errorf("input error %w", err)
+		return "", fmt.Errorf("search value question error %w", err)
 	}
 	return termValue, nil
 }
@@ -137,24 +127,37 @@ func (b *brain) getValue(maxTries int, group, term string) (string, error) {
 const MaxTries = 3
 
 func (b *brain) Forever() {
+	b.Data.Initialise()
 	for {
 		b.UI.WelcomeMenu()
-		b.UI.DataMenu()
+		groups, err := b.Data.GetGroups()
+		if err != nil {
+			fmt.Printf("Data Get Groups error %v\n", err)
+		}
+		b.UI.DataMenu(groups)
 		group, err := b.getGroup(MaxTries)
 		if err != nil {
+			log.Fatal(err)
 		}
 		term, err := b.getTerm(MaxTries, group)
 		if err != nil {
+			log.Fatal(err)
 		}
 		value, err := b.getValue(MaxTries, group, term)
 		if err != nil {
+			log.Fatal(err)
 		}
 
-		found := []map[string]string{}
-		matches := b.Data.FindMatches(group, term, value)
-		found = append(found, matches...)
+		matches, _ := b.Data.FindMatches(group, term, value)
+		found := make([]map[string][]map[string][]string, len(matches)+1)
+		found[0] = map[string][]map[string][]string{}
+		found[0]["matches"] = []map[string][]string{}
+		found[0]["matches"] = append(found[0]["matches"], matches...)
 		for idx := range matches {
-			found = append(found, b.Data.FindRelated(matches[idx])...)
+			d, _ := b.Data.FindRelated(group, matches[idx])
+			for k := range d {
+				found[idx][k] = d[k]
+			}
 		}
 		b.UI.ShowResults(found)
 

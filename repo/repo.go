@@ -2,11 +2,13 @@
 package repo
 
 import (
+	_ "embed" // embed
 	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
 	"reflect"
+
+	"github.com/shanehowearth/zen/zen"
 )
 
 // item - all Data types must implement this interface
@@ -24,6 +26,8 @@ type Data struct {
 	Data    map[string][]map[string][]string        // map[data group][]map[fieldname]field value
 	Indexes map[string]map[string]map[string][]item // map[data group name]map[field name]map[field value][]item
 }
+
+var _ zen.Data = (*Data)(nil)
 
 // Make os.Stat changeable for testing.
 var osStat = os.Stat
@@ -57,8 +61,25 @@ func (d *Data) loadFile(filepath string) ([]byte, error) {
 	return data, nil
 }
 
+// Initialise -
+func (d *Data) Initialise() {
+	err := d.LoadJSON()
+	if err != nil {
+		fmt.Printf("Loading data caused an error %v\n", err)
+	}
+}
+
 // Make json.Unmarshal changeable for testing.
 var jsonUnmarshal = json.Unmarshal
+
+//go:embed data/tickets.json
+var ticketData []byte
+
+//go:embed data/users.json
+var userData []byte
+
+//go:embed data/organizations.json
+var organisationData []byte
 
 // LoadJSON -
 func (d *Data) LoadJSON() error {
@@ -67,30 +88,23 @@ func (d *Data) LoadJSON() error {
 	organisations := []*Organisation{}
 	files := []struct {
 		name      string
-		filename  string
+		fileData  []byte
 		container interface{}
 	}{
-		{"ticket", "data/tickets.json", &tickets},
-		{"user", "data/users.json", &users},
-		{"organisation", "data/organizations.json", &organisations},
+		{"ticket", ticketData, &tickets},
+		{"user", userData, &users},
+		{"organisation", organisationData, &organisations},
 	}
 
 	d.Data = map[string][]map[string][]string{}
 	d.Indexes = map[string]map[string]map[string][]item{}
 	d.Terms = map[string]map[string]struct{}{}
 	for i := range files {
-		p := filepath.FromSlash(files[i].filename)
-
-		// load the file into memory
-		data, err := d.loadFile(p)
-		if err != nil {
-			return fmt.Errorf("%s loaddata error %w", files[i].filename, err)
-		}
-
+		d.Groups = append(d.Groups, files[i].name)
 		// extract the json from the file and load it into structs
-		err = jsonUnmarshal(data, files[i].container)
+		err := jsonUnmarshal(files[i].fileData, files[i].container)
 		if err != nil {
-			return fmt.Errorf("%s unmarshal error %w", files[i].filename, err)
+			return fmt.Errorf("%s unmarshal error %w", files[i].name, err)
 		}
 
 		// Convert the container into a DTO

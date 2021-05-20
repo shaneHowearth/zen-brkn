@@ -21,7 +21,7 @@ func (d *Data) FindMatches(group, term, value string) ([]map[string][]string, er
 	return matches, nil
 }
 
-// FindRelated -
+// FindRelated - return each groups' associated items.
 func (d *Data) FindRelated(group string, origin map[string][]string) (map[string][]map[string][]string, error) {
 	// Where the data exists, values from any related entities should be
 	// included in the results, i.e. searching organization by id should return
